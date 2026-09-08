@@ -1,0 +1,34 @@
+#!/usr/bin/env python3
+"""C-level brute-force wrapper -- auto-generated from template."""
+import os
+import re
+
+def main():
+    binary = "{{ binary_path }}"
+    length = {{ input_length | default(40) }}
+    flag_prefix = "{{ flag_format_prefix | default('') }}"
+
+    {% if globals_code and logic_code %}
+    # Write C source files for auto_c_brute
+    with open("/tmp/kraken_globals.c", "w") as f:
+        f.write({{ globals_code | tojson }})
+    with open("/tmp/kraken_logic.c", "w") as f:
+        f.write({{ logic_code | tojson }})
+
+    cmd = f'python3 auto_c_brute.py --globals /tmp/kraken_globals.c --logic /tmp/kraken_logic.c --length {length}'
+    {% else %}
+    # Direct brute-force via subprocess
+    cmd = f'python3 auto_c_brute.py --globals /dev/null --logic /dev/null --length {length}'
+    {% endif %}
+
+    print(f"[*] Running: {cmd}")
+    result = os.popen(cmd).read()
+    print(result)
+
+    if flag_prefix:
+        match = re.search(re.escape(flag_prefix) + r'[^\s}]+\}?', result)
+        if match:
+            print(f"FLAG: {match.group(0)}")
+
+if __name__ == '__main__':
+    main()

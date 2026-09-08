@@ -1,0 +1,131 @@
+You are the solve engine of KRAKEN. Write a Python solve script for this CTF challenge.
+
+## Challenge: {{ challenge_id }}
+{% if challenge_description %}
+{{ challenge_description }}
+{% endif %}
+
+## Binary: {{ binary_path }}
+- Type: {{ binary_info.get("file_type", "unknown") }}
+- Arch: {{ binary_info.get("architecture", "unknown") }}
+{% if binary_info.get("checksec") %}- Protections: {{ binary_info.checksec | tojson }}{% endif %}
+## Challenge Directory: {{ challenge_dir }}
+{% if workspace_files %}- Files: {{ workspace_files[:20] | join(", ") }}{% endif %}
+
+## Flag Format: {{ flag_format }}
+## Strategy: {{ strategy }}
+## Attempt: {{ attempt_num }}
+
+{% if extracted_params %}
+## Extracted Parameters (deterministic analysis)
+- Input mode: {{ extracted_params.get("input_mode", "unknown") }}
+{% if extracted_params.get("input_length") %}- Input length: {{ extracted_params.input_length }}{% endif %}
+{% if extracted_params.get("success_string") %}- Success string: "{{ extracted_params.success_string }}"{% endif %}
+{% if extracted_params.get("fail_string") %}- Fail string: "{{ extracted_params.fail_string }}"{% endif %}
+{% if extracted_params.get("has_strcmp") %}- Uses strcmp/memcmp for validation{% endif %}
+{% if extracted_params.get("comparison_target") %}- Comparison target: "{{ extracted_params.comparison_target }}"{% endif %}
+{% if extracted_params.get("crypto_indicators") %}- Crypto patterns: {{ extracted_params.crypto_indicators | join(", ") }}{% endif %}
+{% if extracted_params.get("key_constants") %}- Key constants: {{ extracted_params.key_constants[:10] }}{% endif %}
+{% if extracted_params.get("uses_random") %}- Uses srand/rand{% if extracted_params.get("random_seed") %} (seed={{ extracted_params.random_seed }}){% endif %}{% endif %}
+{% endif %}
+
+{% if tool_results %}
+## Pre-Run Tool Results
+{{ tool_results }}
+Build on these findings. Do NOT re-run tools that already produced output above.
+{% endif %}
+
+{% if specialist_summary %}
+## Analysis Summary
+{{ specialist_summary[:500] }}
+{% endif %}
+
+{% if functions %}
+## Key Functions (from decompilation/source)
+{% for name, code in functions.items() %}{% if loop.index <= (max_functions|default(3)) %}
+### {{ name }}
+```
+{{ code[:5000] }}
+```
+{% endif %}{% endfor %}
+{% endif %}
+
+{% if challenge_files and challenge_files|length > 0 %}
+## Challenge Files
+{% for name, info in challenge_files.items() %}{% if loop.index <= 10 %}
+- {{ info.path if info.path else name }} ({{ info.type }}, {{ info.size }} bytes){% if info.content_preview %}
+```
+{{ info.content_preview[:300] }}
+```{% endif %}
+{% endif %}{% endfor %}
+{% endif %}
+
+## Strings of Interest
+{% for s in strings[:10] %}
+- {{ s }}
+{% endfor %}
+
+{% if failure_diagnosis %}
+## FAILURE DIAGNOSIS
+{{ failure_diagnosis[:500] }}
+Fix the issues above. Do not repeat the same mistakes.
+{% endif %}
+
+{% if script_findings %}
+## Verified Findings (from analysis -- USE these as constants)
+{% for finding in script_findings[:10] %}
+- {{ finding }}
+{% endfor %}
+These values were computed by previous analysis. Use them directly -- do NOT recompute.
+{% endif %}
+
+{% if attempt_history and attempt_num > 1 %}
+## Attempt History (do NOT repeat failed approaches)
+{% for line in attempt_history %}
+{{ line }}
+{% endfor %}
+{% endif %}
+
+{% if previous_attempts and attempt_num > 1 %}
+## Previous Attempt (most recent -- full detail)
+{% set last = previous_attempts[-1] %}
+Exit: {{ last.get('exit_code', '?') }} | Stdout: {{ last.get('stdout', '')[:200] }} | Stderr: {{ last.get('stderr', '')[:200] }}
+{% endif %}
+
+## Available Tools (PREFER these over custom scripts)
+{% if helpers_dir %}- `python3 {{ helpers_dir }}/auto_angr.py <bin> --find "<str>" [--length N] [--arg]`
+- `python3 {{ helpers_dir }}/auto_regex_z3.py decompile.c --length N`
+- `python3 {{ helpers_dir }}/auto_gdb_cmp.py <bin> --input "test"`
+- `python3 {{ helpers_dir }}/auto_xor_brute.py --hex "<hex>" --prefix "flag{"`
+- `python3 {{ helpers_dir }}/auto_c_brute.py --globals g.c --logic l.c --length N`
+- `python3 {{ helpers_dir }}/auto_crypto.py <file>`
+{% else %}- `python3 auto_angr.py <bin> --find "<str>" [--length N] [--arg]`
+- `python3 auto_regex_z3.py decompile.c --length N`
+- `python3 auto_gdb_cmp.py <bin> --input "test"`
+- `python3 auto_xor_brute.py --hex "<hex>" --prefix "flag{"`
+- `python3 auto_c_brute.py --globals g.c --logic l.c --length N`
+- `python3 auto_crypto.py <file>`
+{% endif %}
+
+## Available Libraries
+pwntools, angr+claripy, lief, z3-solver, pycryptodome, ctypes, struct, capstone, base64, hashlib, itertools, subprocess
+
+{% if force_flat_z3 %}
+## OVERRIDE: Use flat Z3 (no loops/arrays/lambda). Individual BitVec(8) vars, line-by-line constraints.
+{% endif %}
+
+## Instructions
+You have pre-built helper tools available. PREFER using these tools over writing custom scripts.
+{% if extracted_params and extracted_params.get("success_string") %}
+If the challenge reads input and compares against a success condition, your FIRST choice should be:
+  `python3 {{ helpers_dir|default("") }}/auto_angr.py {{ binary_path }} --find "{{ extracted_params.success_string }}"{% if extracted_params.get("input_length") %} --length {{ extracted_params.input_length }}{% endif %}{% if extracted_params.get("input_mode") == "arg" %} --arg{% endif %}`
+{% endif %}
+Only write custom code if the tools fail or the challenge requires custom logic.
+
+1. FIRST CHOICE: Use a pre-built tool with correct arguments based on extracted parameters above.
+2. SECOND CHOICE: Write a focused Python script under 80 lines using one clear approach.
+3. Every constant must come from the decompiled code above.
+4. Script must be self-contained Python. Print the flag to stdout (format: {{ flag_format }}).
+{% if attempt_num > 1 %}- If a previous attempt failed, try a fundamentally DIFFERENT approach.
+{% endif %}
+Write ONLY the Python script inside a ```python code block:

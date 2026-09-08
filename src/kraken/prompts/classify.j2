@@ -1,0 +1,67 @@
+You are a CTF challenge classifier for reverse engineering challenges.
+
+Analyze the following binary information and determine the challenge type.
+
+{% if challenge_description %}
+## Challenge Description (from CTF prompt)
+{{ challenge_description }}
+{% endif %}
+
+## Binary Info
+- File type: {{ binary_info.get('file_type', 'unknown') }}
+- Protections: {{ binary_info.get('protections', {}) }}
+- Packed: {{ binary_info.get('entropy', {}).get('likely_packed', false) }}
+{% if binary_info.get('is_dotnet') %}- **is_dotnet: TRUE** -- This is a .NET/CIL assembly. Classify as **dotnet**.{% endif %}
+{% if binary_info.get('dotnet_note') %}- dotnet_note: {{ binary_info.get('dotnet_note', '')[:200] }}{% endif %}
+{% if binary_info.get('is_pyc') %}- **is_pyc: TRUE** -- This is a Python bytecode file (.pyc). Classify as **crypto** (most pyc challenges reverse a crypto algorithm in the decompiled Python).{% endif %}
+{% if binary_info.get('is_macro') %}- **is_macro: TRUE** -- This is an Office document with VBA macros. Classify as **crypto** (VBA macro rev challenges typically reverse an encoding/cipher).{% endif %}
+
+## Strings of Interest
+{% for s in strings[:30] %}
+- {{ s }}
+{% endfor %}
+
+## Decompiled Functions
+{% for name, code in functions.items() %}
+### {{ name }}
+```c
+{{ code[:1500] }}
+```
+{% endfor %}
+
+## Annotations
+{% for name, annotation in annotations.items() %}
+### {{ name }}
+{{ annotation[:500] }}
+{% endfor %}
+
+{% if challenge_files %}
+## Challenge Files
+{% for filename, info in challenge_files.items() %}
+### {{ filename }} ({{ info.type }}, {{ info.size }} bytes)
+{% if info.content_preview %}
+```
+{{ info.content_preview[:1500] }}
+```
+{% endif %}
+{% endfor %}
+{% endif %}
+
+Classify this challenge into exactly ONE primary type, and list any secondary types:
+- **constraint**: Input validation, key checking, flag verification that can be solved with z3/angr symbolic execution
+- **crypto**: Encoding, cipher, hashing operations (XOR, Caesar, RC4, AES, custom encoding, base64)
+- **dotnet**: .NET/CIL assembly (C#, VB.NET, F#) -- binary_info shows is_dotnet=True, mscoree.dll/mscorlib imports, _CorExeMain. Requires ILSpy/monodis to decompile.
+- **dynamic**: Requires runtime analysis -- anti-debug, self-modifying code, packed binaries, VM/bytecode
+- **keygen**: Simple key generation or transformation that can be directly reversed without symbolic execution
+- **pwn**: Buffer overflow, format string, heap exploitation, ROP chains -- requires exploit development
+
+IMPORTANT: If binary_info contains is_dotnet=True or dotnet_note, classify as **dotnet**, not dynamic.
+
+Respond with JSON:
+{
+  "challenge_type": "constraint|crypto|dotnet|dynamic|keygen|pwn",
+  "confidence": 0.0-1.0,
+  "reasoning": "Brief explanation of why this classification",
+  "key_indicators": ["indicator1", "indicator2"],
+  "secondary_types": ["type1", "type2"]
+}

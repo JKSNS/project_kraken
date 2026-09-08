@@ -1,0 +1,811 @@
+{
+  "_comment": "Single source of truth for KRAKEN tool metadata. Edit ONLY this file to add/modify/reorder tools.",
+  "tools": {
+    "auto_source_decode": {
+      "description": "Decode base64/hex/chr/shell from source files",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "dir_flag"
+    },
+    "auto_constraint_extract": {
+      "description": "Extract JS/Python char-by-char constraints + XOR arrays",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "dir_flag"
+    },
+    "auto_run_static": {
+      "description": "Run binary with no input (catches static flag printers)",
+      "universal": true,
+      "needs_binary": true,
+      "timeout": 10,
+      "command_style": "custom"
+    },
+    "auto_python_reverse": {
+      "description": "Run solver/exploit scripts from challenge dir",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_c_source_eval": {
+      "description": "Extract flags from C source (hex comments, macros)",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_cpp_compile": {
+      "description": "Compile C/C++/ASM source files and run for flag extraction",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_qr_decode": {
+      "description": "Decode QR codes from text/bitmap data",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_maze_solver": {
+      "description": "Solve maze challenges (PyTorch, text)",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_archive_search": {
+      "description": "Search archives (tar/zip/Docker) for flags",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_git_extract": {
+      "description": "Extract flags from git-based challenges (zip with .git)",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_table_reverse": {
+      "description": "Reverse substitution-table ciphers (table-inc.h)",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_ec_vigenere": {
+      "description": "Solve EC-Vigenere (ECXOR) via known-plaintext attack",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_hash_crack": {
+      "description": "Crack password hashes using hints from challenge descriptions",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "dir_flag"
+    },
+    "auto_pdf_extract": {
+      "description": "Extract text from PDFs and scan for flags",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "dir_flag"
+    },
+    "auto_pcap_extract": {
+      "description": "Extract flags from PCAP network captures",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 90,
+      "command_style": "custom"
+    },
+    "auto_steg_extract": {
+      "description": "Extract hidden data from images (LSB, EXIF, appended)",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 90,
+      "command_style": "custom"
+    },
+    "auto_file_carve": {
+      "description": "Carve embedded files and scan for flags",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 90,
+      "command_style": "dir_flag"
+    },
+    "auto_angr": {
+      "description": "Symbolic execution via angr",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_regex_z3": {
+      "description": "Z3 constraint solving from decompiled regex patterns",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_gdb_cmp": {
+      "description": "GDB byte-by-byte comparison tracing",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_xor_brute": {
+      "description": "XOR brute-force with known prefix",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_c_brute": {
+      "description": "C globals/logic brute-force solver",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_c_rand": {
+      "description": "C random seed reversal (srand/rand)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_pwn_template": {
+      "description": "Automated pwn exploitation (checksec, overflow, ret2win)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 90,
+      "command_style": "binary_flag"
+    },
+    "auto_rop_extract": {
+      "description": "ROP gadget extraction and chain suggestion",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 90,
+      "command_style": "binary_flag"
+    },
+    "auto_crypto": {
+      "description": "Crypto attack suite (CBC bitflip, CTR reuse, hash extension, DES weak keys, ECB oracle, auto-scan)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 90,
+      "command_style": "custom"
+    },
+    "auto_patcher": {
+      "description": "Flag-gate scanner: patches boolean gates (mov byte 0->1, je<->jne) and runs binary",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_normalize": {
+      "description": "Normalize decompiled output for analysis",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_remote_interact": {
+      "description": "General TCP service interaction",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 300,
+      "command_style": "custom"
+    },
+    "auto_timing_attack": {
+      "description": "Timing side-channel attack",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 300,
+      "command_style": "custom"
+    },
+    "auto_substitution_cipher": {
+      "description": "Classical cipher solver (Caesar, Trithemius, Vigenere, Atbash, affine, frequency)",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "dir_flag"
+    },
+    "auto_bash_solver": {
+      "description": "Find and execute bash solver scripts (test_solver/test.sh) with path adaptation",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_rsa_attack": {
+      "description": "RSA attack suite (small e, Wiener, Fermat, common modulus, Pollard p-1)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 120,
+      "command_style": "dir_flag"
+    },
+    "auto_lattice_attack": {
+      "description": "Lattice/number-theory crypto (ECDSA nonce, GCD moduli, BSGS, CRT)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 120,
+      "command_style": "dir_flag"
+    },
+    "auto_dynamic_trace": {
+      "description": "Dynamic binary tracing via strace/ltrace for flag extraction",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "binary_flag"
+    },
+    "auto_pwn_solve": {
+      "description": "Full binary exploitation (ret2win, ret2libc, ROP, format string, shellcode)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_pwn_interact": {
+      "description": "Interactive remote-pwn loop (leak->libc->ROP, ret2win, multi-step send/recv) for live/interactive pwn",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 300,
+      "command_style": "custom"
+    },
+    "auto_libc_lookup": {
+      "description": "Identify libc version from leaked addresses, return system/binsh/one_gadget offsets",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "dir_flag"
+    },
+    "auto_heap_exploit": {
+      "description": "Heap exploitation (tcache, fastbin, UAF, unsorted bin, House of Force)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_kernel_pwn": {
+      "description": "Kernel exploitation (KASLR bypass, modprobe_path, initramfs extraction)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_web_exploit": {
+      "description": "Web exploitation (SQLi, SSTI, command injection, SSRF, LFI, deserialization)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_jwt_crack": {
+      "description": "JWT attack (none algorithm, weak secret, kid injection, algorithm confusion)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_directory_scan": {
+      "description": "Web directory and endpoint discovery with technology fingerprinting",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_webhook_oob": {
+      "description": "OOB webhook callback exploitation (XSS exfil, SSRF callback, blind injection via webhook.site)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_gdb_solve": {
+      "description": "GDB Python scripting (strcmp hook, anti-debug bypass, runtime decrypt)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 90,
+      "command_style": "binary_flag"
+    },
+    "auto_process_interact": {
+      "description": "Multi-round process/service interaction (menus, PoW, brute-force)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_memory_dump": {
+      "description": "Runtime memory extraction and flag/key scanning",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "binary_flag"
+    },
+    "auto_vm_analyze": {
+      "description": "Custom VM/bytecode analysis (opcode extraction, symbolic solve, tracing)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_focused_decompile": {
+      "description": "Smart decompilation for large binaries (function triage, call graph)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_deobfuscate": {
+      "description": "Deobfuscation (UPX unpack, string decrypt, control flow unflatten)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 120,
+      "command_style": "binary_flag"
+    },
+    "auto_binary_diff": {
+      "description": "Binary diffing for patch analysis (A/D vuln identification)",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_angr_advanced": {
+      "description": "Advanced angr with state pruning, function hooks, backward exploration, veritesting, DFS",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 300,
+      "command_style": "custom"
+    },
+    "auto_z3_decompile": {
+      "description": "Extract Z3 constraints from decompiled C code and solve for flag",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 90,
+      "command_style": "dir_flag"
+    },
+    "auto_docker_solve": {
+      "description": "Docker challenge orchestration (build, start, attack, cleanup)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_service_interact": {
+      "description": "Generic network service fingerprinting and interaction",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_forensics_advanced": {
+      "description": "Advanced forensics (memory dumps, disk images, registry, browser artifacts)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_fuzz_harness": {
+      "description": "Generate AFL/libFuzzer fuzzing harnesses with seed corpus and dictionaries",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_pyjail": {
+      "description": "Python jail/sandbox escape (builtins recovery, subclass traversal, unicode tricks)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_padding_oracle": {
+      "description": "AES CBC padding oracle attack (Vaudenay decrypt, bit-flip, reverse encrypt)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 300,
+      "command_style": "custom"
+    },
+    "auto_exploit_gen": {
+      "description": "Auto-detect vuln type, generate and locally test pwntools exploits",
+      "universal": false,
+      "needs_binary": true,
+      "timeout": 120,
+      "command_style": "custom"
+    },
+    "auto_tea_decrypt": {
+      "description": "TEA/XTEA/XXTEA block cipher decryption with auto-endianness detection",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_prng_crack": {
+      "description": "PRNG state recovery (MT19937 untwist, LCG crack, Java Random, glibc rand)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 90,
+      "command_style": "dir_flag"
+    },
+    "auto_solidity_exploit": {
+      "description": "Ethereum/Solidity CTF exploit engine (reentrancy, overflow, delegatecall, access control, bytecode analysis)",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 180,
+      "command_style": "dir_flag"
+    },
+    "auto_secrets_diff": {
+      "description": "Find byte ranges that differ across sibling firmware builds (locates the secrets blob)",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "custom"
+    },
+    "auto_dwarf_structs": {
+      "description": "Extract struct/typedef/global/function ABI facts from DWARF debug info",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": false,
+      "timeout": 60,
+      "command_style": "binary_flag"
+    },
+    "auto_memory_map": {
+      "description": "Parse linker script + ELF to produce structured memory map with overflow-reach",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "custom"
+    },
+    "auto_unstripped_decompile": {
+      "description": "Fast-path decompile using DWARF + nm + r2 batched disassembly (no Ghidra cold-start)",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": false,
+      "timeout": 120,
+      "command_style": "binary_flag"
+    },
+    "auto_existing_exploits": {
+      "description": "Search workspace for prior-art exploits and surface them as threat-model docs",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "dir_flag"
+    },
+    "auto_firmware_recon": {
+      "description": "Orchestrator: runs all firmware recon helpers and emits firmware_recon.json",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 180,
+      "command_style": "dir_flag"
+    },
+    "auto_source_structs": {
+      "description": "tree-sitter-c struct ABI extractor \u2014 source-only path when no DWARF/ELF",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "dir_flag"
+    },
+    "auto_source_structs_rust": {
+      "description": "tree-sitter-rust struct extractor for #[repr(C)] and tuple structs",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "dir_flag"
+    },
+    "auto_ingress_contracts": {
+      "description": "Extract transport-layer call contracts (read_packet/write_packet call sites, length-var init, dispatcher map, validation gates) \u2014 finds the bug class DSU's read_packet length-check bypass falls into",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 60,
+      "command_style": "dir_flag"
+    },
+    "auto_patch_synth": {
+      "description": "LLM-driven patch synthesis (Claude+GPT-5.4 racing) with test-suite validation. AIxCC keystone.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 900,
+      "command_style": "custom"
+    },
+    "auto_serial_replay": {
+      "description": "Hardware-in-the-loop transcript replay + mutation. Drives /dev/ttyACM* via pwntools.serialtube.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 300,
+      "command_style": "custom"
+    },
+    "auto_strip_recover": {
+      "description": "angr-driven function/IO/crypto recovery for stripped binaries (DEF CON CTF stripped-services).",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": false,
+      "timeout": 300,
+      "command_style": "binary_flag"
+    },
+    "auto_ad_client": {
+      "description": "A/D game-protocol client (Faust, iCTF, Nautilus). Submit flags, poll scoreboard, wait for ticks.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_binary_patch": {
+      "description": "Minimal binary patcher (LIEF + raw bytes). NOP-out, byte-patch, SLA-validate. A/D defense.",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": false,
+      "timeout": 60,
+      "command_style": "custom"
+    },
+    "auto_exploit_deployer": {
+      "description": "Multi-target tick-based exploit deployer. Runs exploit script per target in parallel, captures flags.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": false,
+      "timeout": 600,
+      "command_style": "custom"
+    },
+    "auto_service_keeper": {
+      "description": "A/D defense: snapshot clean state + watch for compromise + restore from backup.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": false,
+      "timeout": 180,
+      "command_style": "custom"
+    },
+    "auto_tick_orchestrator": {
+      "description": "A/D tick scheduler. Glues exploit_deployer + service_keeper + ad_client into per-tick loop.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 7200,
+      "command_style": "custom"
+    },
+    "auto_case_state": {
+      "description": "SQLite ledger for cross-helper evidence + decision graph. Every helper records events; orchestrator queries to reason about case state.",
+      "universal": true,
+      "needs_binary": false,
+      "needs_challenge_dir": false,
+      "timeout": 30,
+      "command_style": "custom"
+    },
+    "auto_cve_ingest": {
+      "description": "Pull CVEs from OSV.dev, clone repo at parent of fix commit, generate expected.json. Replaces hand-curation.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": false,
+      "timeout": 600,
+      "command_style": "custom"
+    },
+    "auto_symbolic_pwn": {
+      "description": "angr-driven bug finder for stripped binaries. Unconstrained PC, fmt-string sites, system reaches.",
+      "universal": false,
+      "needs_binary": true,
+      "needs_challenge_dir": false,
+      "timeout": 300,
+      "command_style": "binary_flag"
+    },
+    "auto_patch_diff_score": {
+      "description": "Jaccard similarity between auto_patch_synth winners and OSV upstream_fix.diff. Surfaces memorisation vs synthesis.",
+      "universal": false,
+      "needs_binary": false,
+      "needs_challenge_dir": true,
+      "timeout": 30,
+      "command_style": "custom"
+    },
+    "auto_graphql_exploit": {
+      "description": "GraphQL exploitation (endpoint discovery, introspection, auth bypass, injection)",
+      "universal": false,
+      "needs_binary": false,
+      "timeout": 60,
+      "command_style": "custom"
+    }
+  },
+  "universal_order": [
+    "auto_source_decode",
+    "auto_constraint_extract",
+    "auto_existing_exploits",
+    "auto_run_static",
+    "auto_python_reverse",
+    "auto_c_source_eval",
+    "auto_cpp_compile",
+    "auto_qr_decode",
+    "auto_maze_solver",
+    "auto_archive_search",
+    "auto_git_extract",
+    "auto_table_reverse",
+    "auto_ec_vigenere",
+    "auto_hash_crack",
+    "auto_pdf_extract",
+    "auto_pcap_extract",
+    "auto_steg_extract",
+    "auto_file_carve",
+    "auto_substitution_cipher",
+    "auto_bash_solver"
+  ],
+  "type_specific": {
+    "constraint": [
+      "auto_angr",
+      "auto_angr_advanced",
+      "auto_z3_decompile",
+      "auto_regex_z3",
+      "auto_gdb_cmp",
+      "auto_gdb_solve",
+      "auto_patcher"
+    ],
+    "crypto": [
+      "auto_xor_brute",
+      "auto_c_brute",
+      "auto_c_rand",
+      "auto_rsa_attack",
+      "auto_lattice_attack",
+      "auto_padding_oracle",
+      "auto_tea_decrypt",
+      "auto_prng_crack"
+    ],
+    "keygen": [
+      "auto_angr",
+      "auto_angr_advanced",
+      "auto_z3_decompile",
+      "auto_gdb_cmp",
+      "auto_gdb_solve",
+      "auto_c_brute",
+      "auto_c_rand",
+      "auto_patcher"
+    ],
+    "dynamic": [
+      "auto_gdb_cmp",
+      "auto_gdb_solve",
+      "auto_angr",
+      "auto_z3_decompile",
+      "auto_dynamic_trace",
+      "auto_memory_dump",
+      "auto_vm_analyze",
+      "auto_deobfuscate",
+      "auto_patcher",
+      "auto_tea_decrypt"
+    ],
+    "dotnet": [
+      "auto_angr",
+      "auto_deobfuscate",
+      "auto_z3_decompile",
+      "auto_patcher"
+    ],
+    "pwn": [
+      "auto_pwn_solve",
+      "auto_heap_exploit",
+      "auto_gdb_cmp",
+      "auto_gdb_solve",
+      "auto_pwn_template",
+      "auto_rop_extract",
+      "auto_process_interact",
+      "auto_exploit_gen",
+      "auto_libc_lookup",
+      "auto_fuzz_harness"
+    ],
+    "forensics": [
+      "auto_pcap_extract",
+      "auto_steg_extract",
+      "auto_file_carve",
+      "auto_forensics_advanced"
+    ],
+    "steg": [
+      "auto_steg_extract",
+      "auto_file_carve",
+      "auto_forensics_advanced"
+    ],
+    "fuzzing": [
+      "auto_angr",
+      "auto_angr_advanced",
+      "auto_gdb_solve",
+      "auto_patcher",
+      "auto_fuzz_harness"
+    ],
+    "web": [
+      "auto_web_exploit",
+      "auto_graphql_exploit",
+      "auto_directory_scan",
+      "auto_jwt_crack",
+      "auto_padding_oracle",
+      "auto_webhook_oob"
+    ],
+    "firmware": [
+      "auto_deobfuscate",
+      "auto_focused_decompile",
+      "auto_gdb_solve",
+      "auto_firmware_recon",
+      "auto_dwarf_structs",
+      "auto_memory_map",
+      "auto_secrets_diff",
+      "auto_unstripped_decompile",
+      "auto_source_structs",
+      "auto_source_structs_rust",
+      "auto_ingress_contracts",
+      "auto_serial_replay",
+      "auto_patch_synth"
+    ],
+    "scripting": [
+      "auto_vm_analyze",
+      "auto_process_interact",
+      "auto_pyjail"
+    ],
+    "blockchain": [
+      "auto_solidity_exploit"
+    ],
+    "attack_defense": [
+      "auto_existing_exploits",
+      "auto_strip_recover",
+      "auto_ingress_contracts",
+      "auto_patch_synth",
+      "auto_binary_patch",
+      "auto_exploit_deployer",
+      "auto_service_keeper",
+      "auto_tick_orchestrator",
+      "auto_ad_client"
+    ]
+  },
+  "default_type_specific": [
+    "auto_angr",
+    "auto_angr_advanced",
+    "auto_z3_decompile",
+    "auto_gdb_cmp",
+    "auto_gdb_solve",
+    "auto_c_rand",
+    "auto_dynamic_trace",
+    "auto_deobfuscate",
+    "auto_patcher"
+  ],
+  "remote_tools": [
+    "auto_remote_interact",
+    "auto_timing_attack",
+    "auto_service_interact",
+    "auto_process_interact",
+    "auto_web_exploit"
+  ]
+}

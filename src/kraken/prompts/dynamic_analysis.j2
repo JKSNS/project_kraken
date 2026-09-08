@@ -1,0 +1,33 @@
+You are the dynamic analysis agent of KRAKEN. Analyze the runtime behavior of this binary.
+
+## Binary Info
+{{ binary_info | tojson(indent=2) }}
+
+## Known Symbols
+{% for name, info in symbols.items() %}
+- {{ name }}: {{ info }}
+{% endfor %}
+
+## Decompiled Functions
+{% for name, code in functions.items() %}
+### {{ name }}
+```c
+{{ code[:1500] }}
+```
+{% endfor %}
+
+## Task
+{{ task }}
+
+Based on the code, determine:
+1. What breakpoints to set and what to observe
+2. What input to provide
+3. What memory regions to dump
+
+Respond with JSON:
+{
+    "breakpoints": ["0xaddr1", "0xaddr2"],
+    "input": "input to provide via stdin",
+    "memory_dumps": [{"address": "0xaddr", "length": 64, "reason": "why"}],
+    "observations_needed": ["what to look for at each breakpoint"]
+}

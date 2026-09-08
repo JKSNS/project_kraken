@@ -1,0 +1,22 @@
+{
+  "_what_this_is": "Reviewed-false-positive allowlist for the go-public scrub gate (oss_readiness.py). The scrub is a leak detector; because KRAKEN is a security tool, its own code legitimately handles the words token/password/secret and contains credential-detector marker strings, so the scrub trips on them. Every id below was individually reviewed on 2026-07-18 and confirmed non-sensitive. No real secret, endpoint, credential, or private-project linkage ships.",
+  "_reviewed": [
+    "cve-reference: auto_cve_ingest.py and auto_patch_diff_score.py name public CVE IDs -- that is their function (a CVE-ingestion / patch-diff scoring helper). CVE IDs are public information, not sensitive.",
+    "license-conflict: auto_solidity_exploit.py emits GENERATED Solidity contract templates (Python functions returning Solidity source), and each carries the standard Solidity compiler SPDX MIT header. Solidity requires that header on generated output; it is the compiler convention for those templates, not a license claim on KRAKEN's own code, and does not conflict with the repo license.",
+    "secret / secret-in-history: src/kraken/helpers/auto_memory_dump.py contains the PEM key-header MARKER STRINGS a memory-dump credential detector searches FOR (standard OpenSSL/RSA/EC begin-markers) -- not embedded keys. The history scan re-flags the same strings from the committed blob. test fixture in tests/unit/tools/test_firmware_tools.py writes a placeholder key-shaped string to test the cred scanner.",
+    "secret-assignment: CTF/pwn-tool code that legitimately handles token/password/secret/api_key as its function (CTFd API client token params, JWT/hash crackers, exploit PoC generators, GraphQL payloads) plus test fixtures with obviously-fake values.",
+    "stub: flag-format placeholder strings (flag{test}, flag{TODO}, csawctf{) inside the solver's OWN flag-pattern regexes and wordlists -- not unfinished code."
+  ],
+  "allow_findings": [
+    "9277d89414","b850cfc2ef","1b694a99c7",
+    "322e29f150","d46edef674","528074be6f","210c649b3d","204ab4bc01","ff046c6eb0",
+    "94308fbad8","67a5e904c7","9787b07c18","21c81325a8","297835d911","c3dc760d34",
+    "148bc623df","a4d3195a4e","de728f4016","820961b640","9fee4c0518","10d15d3c8f",
+    "3d714273f6","3896b6ab1c","462815397e","18993edfc6","f79cfd1c9c","a81a7af2c9",
+    "d527ddaf7b","132669a71c","328b0fa614","8ee53c7c29","6f1db8ceab","389c945550",
+    "6889ed1f92","8d0ad28820","b87c574589","95e584d278","70b0027fbf","d4316ee17e",
+    "ad2fa94249","300c2ed0ac","4c0a24afe6","408bf9a833","190a357743",
+    "30a8bf1b44","11ea4aecfd","8abc13cce8","799fee5598","332d966913",
+    "67fca0595f"
+  ]
+}

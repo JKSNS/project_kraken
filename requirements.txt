@@ -1,0 +1,81 @@
+# KRAKEN -- CTF auto-solver -- requirements.txt
+# Generated from pyproject.toml deps + AST import scan (2026-05-26).
+# Core = required to run; sections below are optional/heavy -- install as needed.
+
+# ── core ──
+langgraph>=0.2.0
+langchain>=0.3.0
+langchain-community>=0.3.0
+langchain-ollama>=0.3.0
+fastmcp>=2.0.0
+pydantic-settings>=2.0.0
+structlog>=24.0.0
+pyyaml>=6.0
+jinja2>=3.1.0
+docker>=7.0.0
+numpy>=1.24.0
+Pillow>=10.0.0
+requests
+httpx
+urllib3
+
+# ── binary / pwn ──
+pwntools>=4.12.0
+pyelftools>=0.29
+capstone>=5.0.0
+lief>=0.14.0
+pefile>=2023.2.7
+
+# ── crypto ──
+pycryptodome>=3.20.0
+z3-solver>=4.12.0
+gmpy2
+cryptography
+PyJWT
+hashpumpy
+hlextend
+
+# ── symbolic execution (optional: angr) ──
+angr
+claripy
+unicorn
+
+# ── decompile / source AST ──
+tree-sitter
+tree-sitter-c
+tree-sitter-rust
+
+# ── forensics / network ──
+scapy
+python-evtx
+python-registry
+
+# ── stego / image / qr (optional: qr) ──
+opencv-python
+stegano
+pyzbar
+qrcode
+zxing-cpp
+
+# ── prior-art vector store ──
+qdrant-client
+
+# ── LLM providers (optional) ──
+anthropic
+openai
+ollama
+langchain-core
+
+# ── reporting / viz ──
+matplotlib
+python-pptx
+
+# ── web (optional) ──
+fastapi
+uvicorn
+aiohttp
+scipy
+pydantic
+
+# ── dev / test ──
+pytest

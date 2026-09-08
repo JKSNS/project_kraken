@@ -1,0 +1,42 @@
+#!/usr/bin/env python3
+"""Flat Z3 constraint solver -- auto-generated from template."""
+from z3 import *
+
+def main():
+    length = {{ input_length }}
+    prefix = "{{ flag_format_prefix | default('') }}"
+
+    solver = Solver()
+
+    # Define individual BitVec variables
+    vars = []
+    for i in range(length):
+        v = BitVec(f'f{i}', 8)
+        vars.append(v)
+        solver.add(v >= 0x20)  # printable ASCII
+        solver.add(v <= 0x7e)
+
+    # Apply prefix constraints
+    {% if flag_format_prefix %}
+    prefix_bytes = "{{ flag_format_prefix }}"
+    for i, ch in enumerate(prefix_bytes):
+        solver.add(vars[i] == ord(ch))
+    {% endif %}
+
+    # Constraints from decompiled code
+    {% for constraint in constraints %}
+    {{ constraint }}
+    {% endfor %}
+
+    if solver.check() == sat:
+        m = solver.model()
+        result = ""
+        for v in vars:
+            val = m.eval(v, model_completion=True)
+            result += chr(val.as_long() & 0xFF)
+        print(result)
+    else:
+        print("No solution found.")
+
+if __name__ == '__main__':
+    main()

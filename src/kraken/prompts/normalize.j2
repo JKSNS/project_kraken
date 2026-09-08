@@ -1,0 +1,29 @@
+You are tasked with normalizing the decompiled C code to make it understandable.
+DO NOT output the entire rewritten C file. You will run out of tokens and truncate the output.
+DO NOT write a custom python string-replacement script. You will corrupt the C syntax.
+
+Instead, you MUST use the provided `auto_normalize.py` tool.
+
+1. Analyze the C code and determine logical variable names (e.g., change `local_48` to `flag_buffer`, `iVar1` to `iterator`).
+2. Write a strictly formatted JSON file named `rename_map.json`.
+Example:
+{
+  "local_48": "flag_buffer",
+  "local_10": "index",
+  "uVar1": "xor_key"
+}
+3. Execute the helper script using the command line or subprocess:
+   `python auto_normalize.py decompile.c rename_map.json --out clean.c`
+4. Read the resulting `clean.c` and use it for the rest of your analysis.
+
+{% for func_name, code in functions.items() %}
+## Function: {{ func_name }}
+```c
+{{ code }}
+```
+{% endfor %}
+
+Respond with a JSON object mapping function names to concise annotation summaries:
+{
+  "function_name": "Summary of key variable renames and what this function does"
+}

@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>project_kraken</title>
+  <meta name="description" content="project_kraken: autonomous CTF auto-solver">
+  <meta name="theme-color" content="#04060b">
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32' fill='none' stroke='%2300d4aa' stroke-width='1.7' stroke-linecap='round' stroke-linejoin='round'><path d='M16 3 C10.8 3 7 6.7 7 11.6 C7 14.9 8.6 17 10.6 18.6 L21.4 18.6 C23.4 17 25 14.9 25 11.6 C25 6.7 21.2 3 16 3 Z' fill='%2300d4aa' fill-opacity='0.14'/><circle cx='12.8' cy='11.4' r='1.3' fill='%2300d4aa' stroke='none'/><circle cx='19.2' cy='11.4' r='1.3' fill='%2300d4aa' stroke='none'/><path d='M10.6 18.6 C8.4 21 6.2 22.1 4.2 21.5'/><path d='M13.4 19 C12.4 22 10.8 24.6 8.7 26.2'/><path d='M16 19 L16 26.4'/><path d='M18.6 19 C19.6 22 21.2 24.6 23.3 26.2'/><path d='M21.4 18.6 C23.6 21 25.8 22.1 27.8 21.5'/></svg>">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <!-- Alpine.js -->
+  <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+  <!-- Custom Styles -->
+  <link rel="stylesheet" href="/static/style.css">
+
+  <style>
+    [x-cloak] { display: none !important; }
+  </style>
+</head>
+<body x-cloak x-data="app()" x-init="init()">
+
+  <div class="app-shell">
+
+    <!-- ═══ Sidebar ═══ -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-logo">
+          <svg viewBox="0 0 32 32" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M16 3 C10.8 3 7 6.7 7 11.6 C7 14.9 8.6 17 10.6 18.6 L21.4 18.6 C23.4 17 25 14.9 25 11.6 C25 6.7 21.2 3 16 3 Z" fill="currentColor" fill-opacity="0.14"/>
+            <circle cx="12.8" cy="11.4" r="1.35" fill="currentColor" stroke="none"/>
+            <circle cx="19.2" cy="11.4" r="1.35" fill="currentColor" stroke="none"/>
+            <path d="M10.6 18.6 C8.4 21 6.2 22.1 4.2 21.5 C5.9 23.1 7.6 23.4 9.2 22.3"/>
+            <path d="M13.4 19 C12.4 22 10.8 24.6 8.7 26.2 C10.9 25.8 12.5 24.2 13.5 22.1"/>
+            <path d="M16 19 L16 26.4 C16 27.9 17.6 28.4 18.7 27.3"/>
+            <path d="M18.6 19 C19.6 22 21.2 24.6 23.3 26.2 C21.1 25.8 19.5 24.2 18.5 22.1"/>
+            <path d="M21.4 18.6 C23.6 21 25.8 22.1 27.8 21.5 C26.1 23.1 24.4 23.4 22.8 22.3"/>
+          </svg>
+          <div>
+            <div class="sidebar-logo-text">project_kraken</div>
+            <div class="sidebar-logo-ver">v1.0.0</div>
+          </div>
+        </div>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section-label">Overview</div>
+
+        <a class="nav-item" :class="{ active: view === 'dashboard' }" @click="navigate('dashboard')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/>
+            <rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>
+          </svg>
+          <span>Dashboard</span>
+        </a>
+
+        <a class="nav-item" :class="{ active: view === 'solve' }" @click="navigate('solve')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+          </svg>
+          <span>Solve</span>
+        </a>
+
+        <div class="nav-section-label">Tools</div>
+
+        <a class="nav-item" :class="{ active: view === 'tools' }" @click="navigate('tools')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+          </svg>
+          <span>Tools</span>
+        </a>
+
+        <a class="nav-item" :class="{ active: view === 'history' }" @click="navigate('history')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+          </svg>
+          <span>History</span>
+        </a>
+
+        <div class="nav-section-label">System</div>
+
+        <a class="nav-item" :class="{ active: view === 'settings' }" @click="navigate('settings')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="3"/>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+          </svg>
+          <span>Settings</span>
+        </a>
+      </nav>
+
+      <div class="sidebar-footer">
+        <div class="sidebar-status">
+          <div class="status-dot" :class="{ working: activeSolve, offline: !serverOnline }"></div>
+          <span x-text="activeSolve ? 'Solving...' : (serverOnline ? 'Ready' : 'Offline')"></span>
+        </div>
+        <div class="sidebar-shortcuts">
+          <span class="shortcut-hint">1-5</span> views
+          <span class="shortcut-hint">r</span> refresh
+        </div>
+      </div>
+    </aside>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="main-content">
+
+      <!-- Loading bar (shown during active operations) -->
+      <div class="loading-bar" x-show="loading" x-transition>
+        <div class="loading-bar-fill"></div>
+      </div>
+
+      <!-- ──── Dashboard View ──── -->
+      <div x-show="view === 'dashboard'" x-transition class="fade-in">
+        <div class="page-header">
+          <h1 class="page-title">Dashboard</h1>
+          <p class="page-subtitle">System overview and performance metrics</p>
+        </div>
+        <div class="page-body">
+
+          <div class="stat-grid mb-6">
+            <div class="stat-card">
+              <div class="stat-label">Total Solves</div>
+              <div class="stat-value accent" x-text="stats.global?.total_solves ?? '--'"></div>
+              <div class="stat-detail" x-text="stats.global?.total_failures ? stats.global.total_failures + ' failures' : ''"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Success Rate</div>
+              <div class="stat-value success" x-text="successRate"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Active Jobs</div>
+              <div class="stat-value" :class="activeSolve ? 'warning' : ''" x-text="activeJobCount"></div>
+            </div>
+            <div class="stat-card">
+              <div class="stat-label">Uptime</div>
+              <div class="stat-value" x-text="uptime"></div>
+              <div class="stat-detail">server</div>
+            </div>
+          </div>
+
+          <!-- Recent Solves -->
+          <div class="card">
+            <div class="card-header">
+              <span class="card-title">Recent Solves</span>
+              <button class="btn btn-ghost btn-sm" @click="loadHistory()">Refresh</button>
+            </div>
+            <div class="card-flush">
+              <template x-if="history.length === 0">
+                <div class="empty-state">
+                  <div class="empty-state-title">No solves yet</div>
+                  <p class="text-sm text-secondary">Start a solve from the Solve page</p>
+                </div>
+              </template>
+              <table class="data-table" x-show="history.length > 0">
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>Challenge</th>
+                    <th>Status</th>
+                    <th>Type</th>
+                    <th>Time</th>
+                    <th>Flag</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <template x-for="s in history.slice(0, 10)" :key="s.id">
+                    <tr @click="viewSolve(s)" style="cursor: pointer">
+                      <td class="mono" x-text="s.id"></td>
+                      <td class="truncate" style="max-width: 200px" x-text="s.challenge_path.split('/').pop()"></td>
+                      <td>
+                        <span class="badge"
+                          :class="{
+                            'badge-success': s.status === 'completed',
+                            'badge-error': s.status === 'failed',
+                            'badge-warning': s.status === 'running',
+                            'badge-neutral': s.status === 'pending'
+                          }"
+                          x-text="s.status"></span>
+                      </td>
+                      <td class="mono" x-text="s.challenge_type || '--'"></td>
+                      <td class="mono" x-text="s.elapsed_s + 's'"></td>
+                      <td class="mono text-accent truncate" style="max-width: 160px" x-text="s.flag || '--'"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Per-Type Stats -->
+          <template x-if="Object.keys(stats.per_type || {}).length > 0">
+            <div class="card mt-6">
+              <div class="card-header">
+                <span class="card-title">Performance by Type</span>
+              </div>
+              <div class="card-flush">
+                <table class="data-table">
+                  <thead>
+                    <tr><th>Type</th><th>Solves</th><th>Failures</th><th>Rate</th></tr>
+                  </thead>
+                  <tbody>
+                    <template x-for="[type, data] in Object.entries(stats.per_type || {})" :key="type">
+                      <tr>
+                        <td class="mono"><span class="badge badge-accent" x-text="type"></span></td>
+                        <td class="mono" x-text="data.solves || 0"></td>
+                        <td class="mono" x-text="data.failures || 0"></td>
+                        <td class="mono" x-text="data.solves ? Math.round(data.solves / (data.solves + (data.failures||0)) * 100) + '%' : '--'"></td>
+                      </tr>
+                    </template>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </template>
+
+        </div>
+      </div>
+
+      <!-- ──── Solve View ──── -->
+      <div x-show="view === 'solve'" x-transition class="fade-in">
+        <div class="page-header">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="page-title">Solve</h1>
+              <p class="page-subtitle">Run the full pipeline on a CTF challenge</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm" @click="exportSolveResult()" x-show="solveState === 'completed' || solveState === 'failed'" title="Export result as JSON">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+              </button>
+              <button class="btn btn-danger btn-sm" @click="cancelSolve()" x-show="solveState === 'running'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="3" y="3" width="18" height="18" rx="2"/></svg>
+                Cancel
+              </button>
+              <button class="btn btn-ghost btn-sm" @click="resetSolve()" x-show="solveState !== 'idle'">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/><path d="M3 3v5h5"/></svg>
+                Reset
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+
+          <!-- Solve Form -->
+          <div class="card mb-6" x-show="solveState === 'idle'">
+            <div class="card-body">
+              <div class="input-group mb-4">
+                <label class="input-label">Challenge Path</label>
+                <div class="flex gap-2">
+                  <input type="text" class="input-field" x-model="solveForm.challenge_path"
+                    placeholder="/path/to/challenge or challenge directory"
+                    @keydown.enter="startSolve()">
+                  <button class="btn btn-secondary" @click="browseChallenges()">Browse</button>
+                </div>
+              </div>
+
+              <div class="grid-2 mb-4">
+                <div class="input-group">
+                  <label class="input-label">Flag Format</label>
+                  <input type="text" class="input-field" x-model="solveForm.flag_format"
+                    placeholder="flag\{[a-zA-Z0-9_]+\}">
+                </div>
+                <div class="input-group">
+                  <label class="input-label">Timeout (minutes)</label>
+                  <input type="number" class="input-field" x-model.number="solveForm.timeout_minutes"
+                    min="1" max="120">
+                </div>
+              </div>
+
+              <div class="input-group mb-4">
+                <label class="input-label">Description (optional)</label>
+                <textarea class="input-field" x-model="solveForm.challenge_description"
+                  placeholder="Challenge description text, hints, or notes..."
+                  rows="2"></textarea>
+              </div>
+
+              <div class="flex gap-2">
+                <button class="btn btn-primary" @click="startSolve()"
+                  :disabled="!solveForm.challenge_path">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+                  Start Solve
+                </button>
+                <button class="btn btn-secondary" @click="runTriageOnly()"
+                  :disabled="!solveForm.challenge_path">
+                  Triage Only
+                </button>
+                <button class="btn btn-secondary" @click="runDecompile()"
+                  :disabled="!solveForm.challenge_path || decompileLoading">
+                  <template x-if="decompileLoading"><div class="spinner"></div></template>
+                  Decompile
+                </button>
+                <button class="btn btn-secondary" @click="startBatchSolve()"
+                  :disabled="!solveForm.challenge_path || batchRunning">
+                  <template x-if="batchRunning"><div class="spinner"></div></template>
+                  Batch Solve
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Challenge Browser Modal -->
+          <div x-show="showBrowser" x-transition class="card mb-6">
+            <div class="card-header">
+              <span class="card-title">Browse Challenges</span>
+              <button class="btn btn-ghost btn-sm" @click="showBrowser = false">Close</button>
+            </div>
+            <div class="card-body" style="padding: 8px 0">
+              <div class="flex gap-2 p-4" style="padding-top: 0">
+                <input type="text" class="input-field" x-model="browserPath"
+                  @keydown.enter="loadChallenges()"
+                  placeholder="Directory path">
+                <button class="btn btn-secondary btn-sm" @click="loadChallenges()">Go</button>
+              </div>
+              <!-- Back button -->
+              <div class="challenge-item" @click="navigateDir(browserPath.split('/').slice(0,-1).join('/') || '/')"
+                x-show="browserPath !== '/'">
+                <div class="challenge-icon">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+                </div>
+                <div><div class="challenge-name text-secondary">..</div></div>
+              </div>
+              <div class="challenge-list" style="max-height: 300px; overflow-y: auto">
+                <template x-for="entry in browserEntries" :key="entry.path">
+                  <div class="challenge-item"
+                    @click="entry.is_dir ? navigateDir(entry.path) : selectChallenge(entry.path)">
+                    <div class="challenge-icon">
+                      <template x-if="entry.is_dir">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                      </template>
+                      <template x-if="!entry.is_dir">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                      </template>
+                    </div>
+                    <div style="flex:1">
+                      <div class="challenge-name" x-text="entry.name"></div>
+                      <div class="challenge-meta">
+                        <template x-if="entry.is_dir">
+                          <span x-text="(entry.file_count || 0) + ' files'"></span>
+                        </template>
+                        <template x-if="!entry.is_dir">
+                          <span x-text="formatBytes(entry.size)"></span>
+                        </template>
+                      </div>
+                    </div>
+                    <button class="btn btn-ghost btn-sm" x-show="entry.is_dir"
+                      @click.stop="selectChallenge(entry.path)">Select</button>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Batch Solve Results -->
+          <div x-show="batchMode && batchJobs.length > 0" x-transition class="card mb-6 fade-in">
+            <div class="card-header">
+              <span class="card-title">Batch Solve</span>
+              <div class="flex items-center gap-3">
+                <span class="badge badge-success" x-text="batchStats.flags + '/' + batchStats.total + ' flags'"></span>
+                <span class="badge" :class="batchStats.running > 0 ? 'badge-warning' : 'badge-neutral'"
+                  x-text="batchStats.running > 0 ? batchStats.running + ' running' : 'complete'"></span>
+                <button class="btn btn-ghost btn-sm" @click="batchMode = false; batchJobs = []">Close</button>
+              </div>
+            </div>
+            <div class="card-body" style="padding: 0" x-show="batchStats.running > 0">
+              <div class="progress-bar" style="margin: 0; border-radius: 0">
+                <div class="progress-bar-fill success"
+                  :style="'width: ' + Math.round((batchStats.completed + batchStats.failed) / Math.max(batchStats.total, 1) * 100) + '%'"></div>
+              </div>
+            </div>
+            <div class="card-flush">
+              <table class="data-table">
+                <thead>
+                  <tr><th>Challenge</th><th>Status</th><th>Flag</th><th>Time</th></tr>
+                </thead>
+                <tbody>
+                  <template x-for="j in batchJobs" :key="j.job_id">
+                    <tr>
+                      <td class="mono truncate" style="max-width: 200px" x-text="(j.challenge || j.challenge_path || '').split('/').pop()"></td>
+                      <td>
+                        <span class="badge"
+                          :class="{
+                            'badge-success': j.status === 'completed',
+                            'badge-error': j.status === 'failed',
+                            'badge-warning': j.status === 'running' || j.status === 'pending',
+                            'badge-neutral': !j.status
+                          }"
+                          x-text="j.status || 'queued'"></span>
+                      </td>
+                      <td class="mono text-accent truncate" style="max-width: 200px" x-text="j.flag || '--'"></td>
+                      <td class="mono" x-text="j.elapsed_s ? j.elapsed_s + 's' : '--'"></td>
+                    </tr>
+                  </template>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Pipeline Visualization -->
+          <div x-show="solveState !== 'idle'" class="card mb-6">
+            <div class="card-header">
+              <span class="card-title">Pipeline</span>
+              <div class="flex items-center gap-3">
+                <span class="text-xs font-mono text-secondary" x-text="solveElapsed"></span>
+                <span class="badge" :class="{
+                  'badge-warning': solveState === 'running',
+                  'badge-success': solveState === 'completed',
+                  'badge-error': solveState === 'failed'
+                }" x-text="solveState"></span>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="pipeline-container">
+                <div class="pipeline-flow">
+                  <template x-for="(node, idx) in pipelineNodes" :key="node.id">
+                    <div class="flex items-center">
+                      <div class="pipeline-node">
+                        <div class="pipeline-node-box" :class="nodeStatus(node.id)" x-text="node.label"
+                          @click="toggleNode(node.id)" style="cursor: pointer"></div>
+                        <div class="pipeline-node-time" x-text="nodeTime(node.id)"></div>
+                      </div>
+                      <div class="pipeline-connector" :class="connectorStatus(node.id, idx)"
+                        x-show="idx < pipelineNodes.length - 1"></div>
+                    </div>
+                  </template>
+                </div>
+              </div>
+              <!-- Node Detail Panel -->
+              <template x-if="expandedNode && nodeDetails(expandedNode)">
+                <div class="fade-in" style="padding: 0 18px 18px; border-top: 1px solid var(--border-subtle)">
+                  <div class="terminal" style="margin-top: 12px">
+                    <div class="terminal-header">
+                      <div class="terminal-dots"><div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div></div>
+                      <span class="terminal-title" x-text="expandedNode + ' output'"></span>
+                    </div>
+                    <div class="terminal-body" x-text="JSON.stringify(nodeDetails(expandedNode), null, 2)"></div>
+                  </div>
+                </div>
+              </template>
+            </div>
+          </div>
+
+          <!-- Result Banner -->
+          <template x-if="solveState === 'completed' && solveResult?.flag">
+            <div class="result-banner success fade-in">
+              <div class="result-banner-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+              </div>
+              <div>
+                <div class="flex items-center gap-2">
+                  <div class="result-flag" x-text="solveResult.flag"></div>
+                  <button class="btn btn-ghost btn-icon btn-sm" @click="copyFlag(solveResult.flag)" title="Copy">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                  </button>
+                </div>
+                <div class="result-meta">
+                  <span x-text="solveResult.challenge_type || 'unknown'"></span> &middot;
+                  <span x-text="solveResult.tools_run + ' tools'"></span> &middot;
+                  <span x-text="solveResult.elapsed_s + 's'"></span>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <template x-if="solveState === 'failed'">
+            <div class="result-banner failed fade-in">
+              <div class="result-banner-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="15" y1="9" x2="9" y2="15"/><line x1="9" y1="9" x2="15" y2="15"/></svg>
+              </div>
+              <div>
+                <div class="text-error" style="font-weight: 600">Solve Failed</div>
+                <div class="result-meta" x-text="solveError || 'No flag found within timeout'"></div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Event Log -->
+          <div x-show="solveEvents.length > 0" class="card">
+            <div class="card-header">
+              <span class="card-title">Event Log</span>
+              <span class="text-xs font-mono text-tertiary" x-text="solveEvents.length + ' events'"></span>
+            </div>
+            <div class="card-flush">
+              <div class="event-log" style="max-height: 400px; overflow-y: auto">
+                <template x-for="(evt, i) in [...solveEvents].reverse()" :key="i">
+                  <div class="event-item" :class="{ 'new-event': i < 2 && solveState === 'running' }">
+                    <span class="event-time" x-text="formatEventTime(evt.timestamp)"></span>
+                    <div class="event-indicator" :class="evt.status"></div>
+                    <div class="event-content">
+                      <span class="event-node" x-text="evt.node"></span>
+                      <span class="text-secondary text-xs" x-text="evt.status"></span>
+                      <template x-if="evt.duration_s > 0">
+                        <span class="text-tertiary text-xs font-mono" x-text="evt.duration_s.toFixed(2) + 's'"></span>
+                      </template>
+                      <div class="event-detail" x-show="formatEventData(evt.data)">
+                        <span x-text="formatEventData(evt.data)"></span>
+                      </div>
+                    </div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Triage Result -->
+          <template x-if="triageResult">
+            <div class="card mt-4 fade-in">
+              <div class="card-header">
+                <span class="card-title">Triage Result</span>
+                <button class="btn btn-ghost btn-sm" @click="triageResult = null">Close</button>
+              </div>
+              <div class="card-body">
+                <div class="terminal">
+                  <div class="terminal-header">
+                    <div class="terminal-dots"><div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div></div>
+                    <span class="terminal-title">triage output</span>
+                  </div>
+                  <div class="terminal-body" x-text="JSON.stringify(triageResult, null, 2)"></div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+          <!-- Decompile Viewer -->
+          <template x-if="decompileResult && !decompileResult.error">
+            <div class="card mt-4 fade-in">
+              <div class="card-header">
+                <span class="card-title">Decompiled Code</span>
+                <div class="flex items-center gap-2">
+                  <select class="input-field" style="width: auto; padding: 4px 28px 4px 8px; font-size: 0.75rem"
+                    x-model="selectedFunction">
+                    <template x-for="fn in Object.keys(decompileResult.decompiled_functions || {})" :key="fn">
+                      <option :value="fn" x-text="fn"></option>
+                    </template>
+                  </select>
+                  <span class="badge badge-neutral" x-text="Object.keys(decompileResult.decompiled_functions || {}).length + ' functions'"></span>
+                  <button class="btn btn-ghost btn-sm" @click="decompileResult = null">Close</button>
+                </div>
+              </div>
+              <div class="card-body" style="padding: 0">
+                <div class="terminal" style="border: none; border-radius: 0; max-height: 500px">
+                  <div class="terminal-body">
+                    <pre style="margin:0; tab-size:4"><code class="decompile-code" x-text="(decompileResult.decompiled_functions || {})[selectedFunction] || 'No code available'"></code></pre>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </template>
+
+        </div>
+      </div>
+
+      <!-- ──── Tools View ──── -->
+      <div x-show="view === 'tools'" x-transition class="fade-in">
+        <div class="page-header">
+          <h1 class="page-title">Tools</h1>
+          <p class="page-subtitle">Run individual helper tools against a challenge</p>
+        </div>
+        <div class="page-body">
+
+          <div class="grid-2 mb-6">
+            <div class="input-group">
+              <label class="input-label">Challenge Path</label>
+              <input type="text" class="input-field" x-model="toolForm.challenge_path"
+                placeholder="/path/to/challenge">
+            </div>
+            <div class="input-group">
+              <label class="input-label">Flag Format</label>
+              <input type="text" class="input-field" x-model="toolForm.flag_format">
+            </div>
+          </div>
+
+          <div class="flex items-center gap-3 mb-4">
+            <div class="card-title">Select a Tool</div>
+            <input type="text" class="input-field" style="max-width: 280px" x-model="toolSearch" placeholder="Filter tools...">
+          </div>
+          <div class="tool-grid mb-6">
+            <template x-for="tool in filteredTools" :key="tool">
+              <div class="tool-card"
+                :class="{ selected: toolForm.tool_name === tool }"
+                @click="toolForm.tool_name = tool">
+                <div class="tool-name" x-text="tool"></div>
+                <div class="tool-type" x-text="toolCategory(tool)"></div>
+              </div>
+            </template>
+          </div>
+
+          <div class="flex gap-2 mb-6">
+            <button class="btn btn-primary" @click="runTool()"
+              :disabled="!toolForm.challenge_path || !toolForm.tool_name || toolRunning">
+              <template x-if="toolRunning"><div class="spinner"></div></template>
+              <template x-if="!toolRunning">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+              </template>
+              Run Tool
+            </button>
+            <button class="btn btn-secondary" @click="runCascade()"
+              :disabled="!toolForm.challenge_path || cascadeRunning">
+              <template x-if="cascadeRunning"><div class="spinner"></div></template>
+              Run Full Cascade
+            </button>
+          </div>
+
+          <!-- Tool Result -->
+          <template x-if="toolResult">
+            <div class="card fade-in">
+              <div class="card-header">
+                <div class="flex items-center gap-3">
+                  <span class="card-title" x-text="toolResult.tool || 'Cascade'"></span>
+                  <template x-if="toolResult.flag_found">
+                    <span class="badge badge-success">FLAG FOUND</span>
+                  </template>
+                  <template x-if="toolResult.flag_found === false">
+                    <span class="badge badge-neutral">No flag</span>
+                  </template>
+                </div>
+                <button class="btn btn-ghost btn-sm" @click="toolResult = null">Clear</button>
+              </div>
+              <div class="card-body">
+                <template x-if="toolResult.flag">
+                  <div class="flex items-center gap-2 mb-4">
+                    <div class="result-flag" x-text="toolResult.flag"></div>
+                    <button class="btn btn-ghost btn-icon btn-sm" @click="copyFlag(toolResult.flag)" title="Copy">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+                    </button>
+                  </div>
+                </template>
+                <div class="terminal">
+                  <div class="terminal-header">
+                    <div class="terminal-dots"><div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div></div>
+                    <span class="terminal-title" x-text="toolResult.command || 'output'"></span>
+                  </div>
+                  <div class="terminal-body"><span class="terminal-line" x-html="highlightOutput(toolResult.stdout || toolResult.tool_results_summary || JSON.stringify(toolResult, null, 2))"></span></div>
+                </div>
+                <template x-if="toolResult.stderr">
+                  <div class="terminal mt-2">
+                    <div class="terminal-header">
+                      <span class="terminal-title">stderr</span>
+                    </div>
+                    <div class="terminal-body"><span class="terminal-line" x-html="highlightOutput(toolResult.stderr)"></span></div>
+                  </div>
+                </template>
+              </div>
+            </div>
+          </template>
+
+        </div>
+      </div>
+
+      <!-- ──── History View ──── -->
+      <div x-show="view === 'history'" x-transition class="fade-in">
+        <div class="page-header">
+          <div class="flex items-center justify-between">
+            <div>
+              <h1 class="page-title">History</h1>
+              <p class="page-subtitle">Past solve attempts and results</p>
+            </div>
+            <div class="flex gap-2">
+              <button class="btn btn-ghost btn-sm" @click="exportHistory()" x-show="history.length > 0">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" width="14" height="14"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                Export
+              </button>
+              <button class="btn btn-ghost btn-sm" @click="loadHistory()">Refresh</button>
+            </div>
+          </div>
+        </div>
+        <div class="page-body">
+          <div class="flex items-center gap-3 mb-4" x-show="history.length > 0">
+            <input type="text" class="input-field" style="max-width: 280px" x-model="historySearch" placeholder="Search challenges, flags...">
+            <select class="input-field" style="width: auto" x-model="historyStatusFilter">
+              <option value="">All</option>
+              <option value="completed">Completed</option>
+              <option value="failed">Failed</option>
+              <option value="running">Running</option>
+            </select>
+          </div>
+          <template x-if="history.length === 0">
+            <div class="empty-state">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+              <div class="empty-state-title">No history</div>
+              <p class="text-sm text-secondary">Completed solves will appear here</p>
+            </div>
+          </template>
+          <div class="card card-flush" x-show="history.length > 0">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Challenge</th>
+                  <th>Status</th>
+                  <th>Type</th>
+                  <th>Tools</th>
+                  <th>Time</th>
+                  <th>Flag</th>
+                </tr>
+              </thead>
+              <tbody>
+                <template x-for="s in filteredHistory" :key="s.id">
+                  <tr @click="viewSolve(s)" style="cursor: pointer">
+                    <td class="mono" x-text="s.id"></td>
+                    <td class="truncate" style="max-width: 240px" x-text="s.challenge_path.split('/').pop()"></td>
+                    <td>
+                      <span class="badge"
+                        :class="{
+                          'badge-success': s.status === 'completed',
+                          'badge-error': s.status === 'failed',
+                          'badge-warning': s.status === 'running',
+                          'badge-neutral': ['pending','cancelled'].includes(s.status)
+                        }"
+                        x-text="s.status"></span>
+                    </td>
+                    <td class="mono" x-text="s.challenge_type || '--'"></td>
+                    <td class="mono" x-text="s.tools_run || 0"></td>
+                    <td class="mono" x-text="s.elapsed_s + 's'"></td>
+                    <td class="mono text-accent truncate" style="max-width: 180px" x-text="s.flag || '--'"></td>
+                  </tr>
+                </template>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+
+      <!-- ──── Settings View ──── -->
+      <div x-show="view === 'settings'" x-transition class="fade-in">
+        <div class="page-header">
+          <h1 class="page-title">Settings</h1>
+          <p class="page-subtitle">Kraken configuration (read from environment / config.py)</p>
+        </div>
+        <div class="page-body">
+
+          <div class="settings-section">
+            <div class="settings-section-title">Model Configuration</div>
+            <div class="settings-row">
+              <div class="input-group">
+                <label class="input-label">Backend</label>
+                <input type="text" class="input-field" :value="config?.model?.backend || ''" readonly>
+              </div>
+              <div class="input-group">
+                <label class="input-label">High-tier Model</label>
+                <input type="text" class="input-field" :value="config?.model?.model_high || ''" readonly>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="input-group">
+                <label class="input-label">Mid-tier Model</label>
+                <input type="text" class="input-field" :value="config?.model?.model_mid || ''" readonly>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Low-tier Model</label>
+                <input type="text" class="input-field" :value="config?.model?.model_low || ''" readonly>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="input-group">
+                <label class="input-label">Ollama URL</label>
+                <input type="text" class="input-field" :value="config?.model?.ollama_base_url || ''" readonly>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Context Window</label>
+                <input type="text" class="input-field" :value="config?.model?.num_ctx ? config.model.num_ctx.toLocaleString() : ''" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Budget Configuration</div>
+            <div class="settings-row">
+              <div class="input-group">
+                <label class="input-label">Max Steps</label>
+                <input type="text" class="input-field" :value="config?.budget?.max_steps || ''" readonly>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Timeout (minutes)</label>
+                <input type="text" class="input-field" :value="config?.budget?.timeout_minutes || ''" readonly>
+              </div>
+            </div>
+            <div class="settings-row">
+              <div class="input-group">
+                <label class="input-label">Max Strategies</label>
+                <input type="text" class="input-field" :value="config?.budget?.max_strategies || ''" readonly>
+              </div>
+              <div class="input-group">
+                <label class="input-label">Max Solve Attempts</label>
+                <input type="text" class="input-field" :value="config?.budget?.max_solve_attempts || ''" readonly>
+              </div>
+            </div>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Cascade Configuration</div>
+            <template x-if="Object.keys(cascadeConfig).length > 0">
+              <div class="terminal">
+                <div class="terminal-header">
+                  <div class="terminal-dots"><div class="terminal-dot r"></div><div class="terminal-dot y"></div><div class="terminal-dot g"></div></div>
+                  <span class="terminal-title">cascade_config.json</span>
+                </div>
+                <div class="terminal-body" x-text="JSON.stringify(cascadeConfig, null, 2)"></div>
+              </div>
+            </template>
+            <template x-if="Object.keys(cascadeConfig).length === 0">
+              <p class="text-secondary text-sm">Using default cascade configuration (no learned config found)</p>
+            </template>
+          </div>
+
+          <div class="settings-section">
+            <div class="settings-section-title">Available Tools (<span x-text="availableTools.length"></span>)</div>
+            <div class="flex" style="flex-wrap: wrap; gap: 6px">
+              <template x-for="tool in availableTools" :key="tool">
+                <span class="badge badge-neutral" x-text="tool"></span>
+              </template>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </main>
+  </div>
+
+  <div class="toast-container" id="toast-container"></div>
+  <script src="/static/app.js"></script>
+</body>
+</html>

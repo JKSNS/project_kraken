@@ -1,0 +1,43 @@
+#!/usr/bin/env python3
+"""Forward brute-force solver -- auto-generated from template."""
+
+def check_char(c, operations, expected):
+    """Apply operations to character and check against expected value."""
+    val = ord(c) & 0xFF
+    for op in operations:
+        if op[0] == '+':
+            val = (val + int(op[1:], 0)) & 0xFF
+        elif op[0] == '-':
+            val = (val - int(op[1:], 0)) & 0xFF
+        elif op[0] == '^':
+            val = val ^ (int(op[1:], 0) & 0xFF)
+        elif op[0] == '*':
+            val = (val * int(op[1:], 0)) & 0xFF
+    return val == (expected & 0xFF)
+
+def main():
+    length = {{ input_length }}
+    prefix = "{{ flag_format_prefix | default('') }}"
+
+    checks = {{ checks | tojson }}
+
+    result = list(prefix)
+
+    for i in range(len(prefix), length):
+        found = False
+        check = checks.get(str(i)) if isinstance(checks, dict) else (checks[i] if i < len(checks) else None)
+        if not check:
+            result.append('?')
+            continue
+        for c in range(0x20, 0x7f):
+            if check_char(chr(c), check.get('operations', []), check.get('expected', 0)):
+                result.append(chr(c))
+                found = True
+                break
+        if not found:
+            result.append('?')
+
+    print(''.join(result))
+
+if __name__ == '__main__':
+    main()

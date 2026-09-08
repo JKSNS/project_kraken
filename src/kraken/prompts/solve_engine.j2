@@ -1,0 +1,568 @@
+You are the solve engine of KRAKEN. Write a Python solve script for this CTF challenge.
+
+## Challenge: {{ challenge_id }}
+{% if challenge_description %}
+## Description
+{{ challenge_description }}
+{% endif %}
+
+## Binary Path
+{{ binary_path }}
+{% if challenge_dir %}
+## Challenge Directory
+{{ challenge_dir }}
+All challenge files are in this directory. Use absolute paths or os.path.join("{{ challenge_dir }}", "filename") to access them.
+{% endif %}
+{% if solve_workspace %}
+
+## Solve Workspace
+{{ solve_workspace }}
+Your scripts run from the challenge directory, but helper tools and previous outputs live here.
+{% if workspace_files %}
+Files available: {{ workspace_files | join(', ') }}
+{% endif %}
+You can import or subprocess any of these tools, or write your own approach entirely.
+{% endif %}
+
+{% if remote_info and remote_info.host %}
+## Remote Server
+Host: {{ remote_info.host }}
+Port: {{ remote_info.port }}
+Use pwntools `remote('{{ remote_info.host }}', {{ remote_info.port }})` for interaction.
+{% endif %}
+
+{% if challenge_files and challenge_files|length > 1 %}
+## Challenge Files
+{% for name, info in challenge_files.items() %}
+- {{ info.path if info.path else name }} ({{ info.type }}, {{ info.size }} bytes){% if info.content_preview %}
+```
+{{ info.content_preview[:500] }}
+```{% endif %}
+{% endfor %}
+{% endif %}
+
+## Flag Format: {{ flag_format }}
+## Strategy: {{ strategy }}
+## Attempt: {{ attempt_num }}
+
+## Binary Summary
+- Type: {{ binary_info.get("file_type", "unknown") }}
+- Arch: {{ binary_info.get("architecture", "unknown") }}
+{% if binary_info.get("checksec") %}- Protections: {{ binary_info.checksec | tojson }}{% endif %}
+{% if binary_info.get("entropy") %}- Entropy: {{ binary_info.entropy.get("overall", "?") }}{% if binary_info.entropy.get("likely_packed") %} [LIKELY PACKED]{% endif %}{% endif %}
+
+{% if binary_info.get("anti_debug_indicators") %}
+## ANTI-DEBUG DETECTED: {{ binary_info.anti_debug_indicators | join(", ") }}
+You MUST bypass these before running. Use lief to NOP out ptrace calls or LD_PRELOAD a stub.
+{% endif %}
+
+{% if binary_info.get("custom_sections") %}
+## Custom ELF Sections
+{% for sec in binary_info.custom_sections %}
+- {{ sec.name }}: {{ sec.size }} bytes, entropy={{ sec.entropy }}{% if sec.is_high_entropy %} [HIGH ENTROPY -- likely encrypted]{% endif %}
+{% endfor %}
+Extract with lief: `bytes(binary.get_section(".name").content)`
+{% endif %}
+
+{% if binary_info.get("encoding_hints") and binary_info.encoding_hints.get("detected_encodings") %}
+## Detected Encodings: {{ binary_info.encoding_hints.detected_encodings | join(", ") }}
+{% if binary_info.encoding_hints.get("encoding_evidence") %}
+{% for ev in binary_info.encoding_hints.encoding_evidence[:3] %}
+- "{{ ev.string[:40] }}..." → {{ ev.encoding }} → "{{ ev.decoded_preview[:30] }}"
+{% endfor %}
+{% endif %}
+When multiple encodings exist, try decoding in reverse order (the binary applies them sequentially).
+{% endif %}
+
+{% if binary_info.get("imports") %}
+## Imports: {{ binary_info.imports[:30] | join(", ") }}
+{% endif %}
+
+{% if binary_info.get("got") %}
+## GOT (key entries): {% for name, addr in binary_info.got.items() %}{% if loop.index <= 10 %}{{ name }}={{ addr }}{% if not loop.last %}, {% endif %}{% endif %}{% endfor %}
+
+{% endif %}
+
+{% if specialist_summary %}
+## Specialist Analysis Summary
+{{ specialist_summary }}
+{% endif %}
+
+{# Secondary types context (#3) -- inform LLM about hybrid challenge characteristics #}
+{% if secondary_types %}
+## Additional Challenge Characteristics
+This challenge also has characteristics of: {{ secondary_types | join(", ") }}
+Consider incorporating techniques from these categories into your solve script.
+{% endif %}
+
+## Decompiled Functions (GROUND TRUTH -- from Ghidra)
+{% for name, code in functions.items() %}
+### {{ name }}
+```c
+{{ code }}
+```
+{% endfor %}
+
+## Strings of Interest (GROUND TRUTH)
+{% for s in strings[:20] %}
+- {{ s }}
+{% endfor %}
+
+{% if annotations %}
+## Function Annotations (advisory)
+{% for name, ann in annotations.items() %}
+**{{ name }}**: {{ ann[:300] }}
+{% endfor %}
+{% endif %}
+
+{% if angr_results and angr_results.get("satisfiable") is not none %}
+## Angr Results
+{% if angr_results.get("satisfiable") %}SATISFIABLE -- Solution: {{ angr_results.get("solution_ascii", angr_results.get("solution", "")) }}{% else %}UNSATISFIABLE or timed out{% endif %}
+{% if angr_results.get("crypto_analysis") %}
+Crypto: {{ angr_results.crypto_analysis.get("algorithm", "unknown") }} -- {{ angr_results.crypto_analysis.get("reverse_approach", "") }}
+{% if angr_results.crypto_analysis.get("concrete_crypto_data", {}).get("dlopen_pattern") %}
+NOTE: Binary uses dlopen/dlsym to load functions dynamically. Consider extracting the library and calling functions directly via ctypes.
+{% endif %}
+{% if angr_results.crypto_analysis.get("concrete_crypto_data", {}).get("encoding_chains") %}
+Encoding chains detected:
+{% for chain in angr_results.crypto_analysis.concrete_crypto_data.encoding_chains[:3] %}
+- "{{ chain.original[:40] }}..." → {{ chain.chain | join(" → ") }}
+{% endfor %}
+{% endif %}
+{% endif %}
+{% if angr_results.get("pwn_analysis") %}
+Pwn: {{ angr_results.pwn_analysis.get("vulnerability", "unknown") }} -- {{ angr_results.pwn_analysis.get("exploit_strategy", "") }}
+{% if angr_results.pwn_analysis.get("offset") %}Offset: {{ angr_results.pwn_analysis.offset }}{% endif %}
+{% endif %}
+{% endif %}
+
+{# Dynamic traces -- shown on ALL attempts now (#7: removed attempt_num > 1 gate) #}
+{% if dynamic_traces %}
+## Dynamic Traces
+{% for trace in dynamic_traces[:5] %}
+- {{ trace.get("type", "unknown") }}: {% if trace.get("stdout") %}stdout="{{ trace.stdout[:100] }}"{% endif %}{% if trace.get("data", {}).get("satisfiable") %} [ANGR SOLUTION FOUND]{% endif %}
+{% endfor %}
+{% endif %}
+
+{# Failure diagnosis from flag_validator (#1) -- shown on ALL attempts #}
+{% if failure_diagnosis %}
+## FAILURE DIAGNOSIS (from previous analysis)
+{{ failure_diagnosis }}
+FIX THE ISSUES DESCRIBED ABOVE. Do not repeat the same mistakes.
+{% endif %}
+
+{# Intermediate findings from previous script output (#2) -- shown on ALL attempts #}
+{% if script_findings %}
+## Verified Findings (from analysis -- USE these as constants)
+{% for finding in script_findings[:10] %}
+- {{ finding }}
+{% endfor %}
+These values were computed by previous analysis. Use them directly -- do NOT recompute.
+{% endif %}
+
+
+{% if attempt_ledger %}
+## Shared Solve Path (recent execution outcomes)
+{{ attempt_ledger }}
+Use this ledger to avoid repeating the same failure mode.
+{% endif %}
+
+{% if working_memory %}
+<working_memory>
+{{ working_memory }}
+</working_memory>
+{% endif %}
+
+{% if attempt_history and attempt_num > 1 %}
+## Attempt History (do NOT repeat failed approaches)
+{% for line in attempt_history %}
+{{ line }}
+{% endfor %}
+{% endif %}
+
+{% if previous_attempts %}
+## Previous Failed Attempts -- DO NOT REPEAT THESE
+{% for attempt in previous_attempts %}
+### Attempt {{ attempt.attempt_num }} ({{ attempt.strategy }})
+Exit: {{ attempt.get('exit_code', 'unknown') }} | Stdout: {{ attempt.get('stdout', '')[:300] }} | Stderr: {{ attempt.get('stderr', '')[:300] }}
+```python
+{{ attempt.get('code', '')[:800] }}
+```
+{% endfor %}
+{% endif %}
+
+## Available Libraries
+pwntools, angr+claripy, lief, z3-solver, pycryptodome, ctypes, struct, capstone, base64, hashlib, itertools, subprocess, dnfile, pefile
+CLI tools: mono, dotnet, ilspycmd, monodis, strings, objdump, gdb, strace, ltrace
+
+{# Conditional solve patterns (#14) -- only show patterns relevant to challenge type #}
+## Solve Patterns
+
+
+{% if force_flat_z3 %}
+## STRATEGY OVERRIDE: Flat Z3 Constraint Mapping (required for this retry)
+Small-model failure loop detected (index mismatch / transformation-array drift). Apply this exact method:
+1. Determine exact input length from deterministic artifacts (e.g., strlen check).
+2. MANDATORY FLAT PATTERN: define `f0, f1, ...` as individual BitVec(8) vars.
+3. FORBIDDEN: loops/arrays/lambda for constraint generation.
+4. Recreate temporaries literally, line-by-line (e.g., `bVar7 = (f0 + 0xb0) ^ 0x50`).
+5. Enforce C precedence with parentheses for +/- before XOR.
+6. Mask negative constants for 8-bit semantics: `(-0x39 & 0xFF)`.
+7. Solve using `m.eval(var, model_completion=True).as_long()` and print final candidate.
+8. Precision check is mandatory: double-check every hex constant and every +/- operator
+   against decompiled C before finalizing. A single typo can corrupt only a subset of bytes.
+9. If output contains mixed printable chars and escaped bytes (e.g., `\x15`), audit the
+   exact constraint lines for those broken indices and fix transcription mistakes.
+
+### Mandatory Z3 skeleton when using symbolic constraints
+```python
+from z3 import *
+solver = Solver()
+
+# 1) Define variables individually
+f0 = BitVec('f0', 8)
+f1 = BitVec('f1', 8)
+
+# 2) Add constraints individually (no loop generation)
+solver.add((f0 + 0x12) ^ 0x34 == 0x55)
+solver.add((f1 + 0x21) ^ 0xA1 == (-0x39 & 0xFF))
+
+if solver.check() == sat:
+    m = solver.model()
+    # model_completion=True prevents NoneType crashes on under-constrained vars
+    res = ""
+    for var in [f0, f1]:
+        res += chr(m.eval(var, model_completion=True).as_long())
+    print("vere{" + res + "}")
+else:
+    print("No solution found.")
+```
+{% endif %}
+
+## Solving Strategy
+
+You have full autonomy over your approach. Analyze the challenge, pick the best strategy, and execute it.
+
+### Pre-Built Helper Tools
+{% if helpers_dir %}Helper tools are at: `{{ helpers_dir }}/`{% endif %}
+Use them when they fit, but don't force them:
+
+| Tool | Best For | Usage |
+|------|----------|-------|
+| `auto_angr.py` | Path-finding through binary logic | `python3 {{ helpers_dir|default("") }}/auto_angr.py <bin> --find "<string>" [--length <int>] [--arg]` |
+| `auto_regex_z3.py` | Parsing 20+ lines of unrolled constraint equations | `python3 {{ helpers_dir|default("") }}/auto_regex_z3.py decompile.c --length <int>` |
+| `auto_gdb_cmp.py` | Dumping strings at strcmp/memcmp | `python3 {{ helpers_dir|default("") }}/auto_gdb_cmp.py <bin> --input "vere{test}"` |
+| `auto_xor_brute.py` | XOR decryption with known prefix | `python3 {{ helpers_dir|default("") }}/auto_xor_brute.py --hex "<hex>" --prefix "vere{"` |
+| `auto_c_brute.py` | Complex C math brute-force | `python3 {{ helpers_dir|default("") }}/auto_c_brute.py --globals g.c --logic l.c --length <int>` |
+| `auto_crypto.py` | Common crypto operations | `python3 {{ helpers_dir|default("") }}/auto_crypto.py <args>` |
+| `auto_patcher.py` | Binary patching (NOP anti-debug) | `python3 {{ helpers_dir|default("") }}/auto_patcher.py <args>` |
+
+**When using `auto_angr.py`**, determine parameters from decompiled code:
+- `--arg`: Use if `main` checks `argc`/`argv[1]`. Omit if binary reads from stdin (`fgets`, `scanf`, `read`).
+- `--length`: Match `strlen` checks or loop bounds in the code. Default 40 if unknown.
+- `--find`: Match the exact success string (e.g., `"Correct!"`, `"WIN"`).
+
+### When to Write Custom Scripts Instead
+Helper tools are a starting point, not a ceiling. Write your own code when:
+- The challenge doesn't fit any helper (forensics, image processing, network analysis, custom ciphers)
+- A helper failed and you understand why -- write a targeted solution
+- You can directly reverse the algorithm from the decompiled code
+- The challenge requires multi-step analysis (extract → decode → decrypt → submit)
+- You need to combine multiple techniques in one script
+
+### Workspace as Your Lab
+Your solve directory is your workspace. You can:
+- Read, copy, and modify any helper tool to adapt it
+- Create intermediate analysis files (extracted data, partial results, notes)
+- Write multi-stage scripts that build on previous outputs
+- Import and combine approaches from multiple helpers
+- Use any Python library available on the system
+
+{% if challenge_type == "forensics" or category == "forensics" %}
+### Pattern: Image / Steganography Analysis
+```python
+from PIL import Image
+import os
+
+# Open image and analyze pixels
+img = Image.open(os.path.join("{{ challenge_dir }}", "image.png"))
+pixels = list(img.getdata())
+width, height = img.size
+
+# LSB steganography: extract least significant bits
+bits = ''.join(str(p[0] & 1) for p in pixels[:8*200])
+chars = [chr(int(bits[i:i+8], 2)) for i in range(0, len(bits), 8)]
+result = ''.join(c for c in chars if c.isprintable())
+print(result)
+```
+
+### Pattern: QR Code / Binary Matrix Reconstruction
+```python
+from PIL import Image
+import os
+
+# Read binary data / pixel values and reconstruct image
+data = open(os.path.join("{{ challenge_dir }}", "data.bin"), "rb").read()
+# Determine dimensions and create image
+size = int(len(data) ** 0.5)
+img = Image.new('1', (size, size))
+for i, b in enumerate(data[:size*size]):
+    img.putpixel((i % size, i // size), 1 if b else 0)
+img.save("/tmp/reconstructed.png")
+# Decode QR code if applicable
+try:
+    import qrcode
+    from pyzbar.pyzbar import decode
+    results = decode(img)
+    for r in results:
+        print(r.data.decode())
+except ImportError:
+    print("[*] Saved reconstructed image to /tmp/reconstructed.png")
+```
+
+### Pattern: Archive / Package Extraction
+```python
+import subprocess, os, tarfile, zipfile
+
+challenge_dir = "{{ challenge_dir }}"
+# Handle .tar.gz, .zip, .deb packages
+for f in os.listdir(challenge_dir):
+    path = os.path.join(challenge_dir, f)
+    if f.endswith(('.tar.gz', '.tgz')):
+        with tarfile.open(path) as tf:
+            tf.extractall('/tmp/extracted')
+    elif f.endswith('.zip'):
+        with zipfile.ZipFile(path) as zf:
+            zf.extractall('/tmp/extracted')
+    elif f.endswith('.deb'):
+        subprocess.run(['dpkg-deb', '-x', path, '/tmp/extracted'], check=True)
+
+# Search extracted files for flags
+for root, dirs, files in os.walk('/tmp/extracted'):
+    for fname in files:
+        fpath = os.path.join(root, fname)
+        try:
+            content = open(fpath, 'rb').read()
+            # Search for flag pattern
+            import re
+            matches = re.findall(rb'{{ flag_format }}', content)
+            for m in matches:
+                print(m.decode(errors='replace'))
+        except: pass
+```
+{% endif %}
+
+{% if not challenge_type or challenge_type in ["dynamic", "constraint", ""] %}
+### Pattern: Binary Patching (anti-debug / modification)
+```python
+import lief
+binary = lief.parse("{{ binary_path }}")
+text = binary.get_section(".text")
+content = bytearray(text.content)
+# NOP out anti-debug: replace bytes with 0x90
+binary.write("/tmp/patched")
+import os; os.chmod("/tmp/patched", 0o755)
+```
+{% endif %}
+
+{% if not challenge_type or challenge_type in ["crypto", "dynamic", ""] %}
+### Pattern: Custom Section Extraction
+```python
+import lief
+binary = lief.parse("{{ binary_path }}")
+data = bytes(binary.get_section(".section_name").content)
+# XOR with keys from .rodata, or decrypt with identified algorithm
+```
+{% endif %}
+
+{% if not challenge_type or challenge_type in ["constraint", "keygen", ""] %}
+### Pattern: angr Symbolic Execution
+```python
+import angr, claripy
+p = angr.Project("{{ binary_path }}", auto_load_libs=False)
+stdin_sym = claripy.BVS("stdin", 64 * 8)
+state = p.factory.entry_state(stdin=angr.SimFileStream(name="stdin", content=stdin_sym))
+sm = p.factory.simgr(state, veritesting=True)
+sm.explore(find=lambda s: b"correct" in s.posix.dumps(1),
+           avoid=lambda s: b"wrong" in s.posix.dumps(1))
+if sm.found: print(sm.found[0].solver.eval(stdin_sym, cast_to=bytes))
+```
+{% endif %}
+
+{% if not challenge_type or challenge_type in ["crypto", "dynamic", ""] %}
+### Pattern: ctypes Direct Library Loading
+```python
+import ctypes, struct
+# Extract encrypted .so from custom section, decrypt, write to /tmp/
+lib = ctypes.CDLL("/tmp/extracted.so", mode=ctypes.RTLD_GLOBAL)
+fn = lib["function_name"]  # use [] to avoid Python __ name mangling
+fn.restype = None
+fn.argtypes = [ctypes.c_void_p, ctypes.c_void_p]
+```
+{% endif %}
+
+{% if not challenge_type or challenge_type in ["dynamic", "constraint", ""] %}
+### Pattern: LD_PRELOAD Anti-Debug Bypass
+```python
+import subprocess, tempfile, os
+hook = 'long ptrace(int r, ...) { return 0; }'
+with tempfile.NamedTemporaryFile(suffix='.c', delete=False, mode='w') as f: f.write(hook); c = f.name
+so = c.replace('.c', '.so')
+subprocess.run(['gcc', '-shared', '-fPIC', '-o', so, c])
+env = os.environ.copy(); env['LD_PRELOAD'] = so
+result = subprocess.run(["{{ binary_path }}"], env=env, input=b"test", capture_output=True)
+```
+{% endif %}
+
+{% if not challenge_type or challenge_type in ["keygen", "crypto", "constraint", ""] %}
+### Pattern: Validation Table Brute-Force
+If input is compared against a hardcoded table after transformation:
+1. Extract expected values from .rodata/.data.rel.ro
+2. If transform function is in a .so, call via ctypes directly
+3. For short inputs (≤5 bytes), brute-force with seed/hash filtering
+4. For longer inputs with per-byte math, use FORWARD brute-force per position over printable ASCII
+   (32..126) instead of algebraic inverse to avoid sign/overflow mistakes
+{% endif %}
+
+{% if challenge_type == "crypto" %}
+### CRITICAL Crypto Strategy: Forward Printable Brute-Force
+- Assume valid flag chars are printable ASCII only (`for i in range(32, 127)`).
+- Extract the target byte array that validation compares against.
+- For each index, apply the **exact forward operations** from decompiled code to candidate `i`.
+- Force 8-bit arithmetic at every step with `& 0xFF`.
+- Accept the candidate when forward result equals the target byte, append `chr(i)`.
+- Do NOT use algebraic reverse formulas when forward brute-force is feasible.
+
+### CRITICAL UPDATE: Stateful Brute-Force (rolling dependency)
+- Solve left-to-right; build flag sequentially (`i = 0..n-1`).
+- If decompiled math references adjacent bytes (e.g., `flag[i-1]`), use already-recovered bytes in the forward check.
+- Keep target bytes as clean integers/valid hex literals only (`[0x41, 0x12, 143, ...]`).
+- In the forward check, mask EACH arithmetic step (`+`, `-`, `^`) with `& 0xFF` before compare.
+- Keep script compact (<100 lines), avoid `try/except`, and end with `print(flag)`.
+{% endif %}
+
+{% if challenge_type == "pwn" %}
+### Pattern: Buffer Overflow + ROP
+```python
+from pwn import *
+binary = ELF("{{ binary_path }}")
+{% if remote_info and remote_info.host %}
+p = remote("{{ remote_info.host }}", {{ remote_info.port }})
+{% else %}
+p = process("{{ binary_path }}")
+{% endif %}
+# Find offset with cyclic pattern
+offset = cyclic_find(0x61616161)  # replace with actual crash value
+payload = b"A" * offset
+payload += p64(binary.symbols.get("win", 0))  # or ROP chain
+p.sendline(payload)
+print(p.recvall().decode(errors="replace"))
+```
+
+### Pattern: Format String
+```python
+from pwn import *
+p = process("{{ binary_path }}")
+# Leak addresses: %p.%p.%p...
+# Write with %n: use fmtstr_payload(offset, {addr: value})
+payload = fmtstr_payload(offset, {target_addr: target_value})
+p.sendline(payload)
+```
+{% endif %}
+
+{% if binary_info.get("is_pyc") or challenge_type == "pyc" %}
+### Pattern: Python Bytecode (.pyc) -- Decompile and Reverse
+The decompiled source is already in the Decompiled Functions section as `__pyc_source__`.
+Read the source, identify the algorithm (often AES, XOR, base64, or custom cipher), then reverse it.
+```python
+# The pyc source has already been decompiled -- read the __pyc_source__ function above.
+# Typical approach: find the key/encrypted_flag constants, then reverse the cipher.
+# Example: if source uses AES-ECB with a hardcoded key:
+from Crypto.Cipher import AES
+key = b"..."          # from the decompiled source
+ct  = bytes.fromhex("...")  # from the decompiled source
+print(AES.new(key, AES.MODE_ECB).decrypt(ct).decode().rstrip('\x00'))
+```
+{% endif %}
+
+{% if binary_info.get("is_macro") or challenge_type == "macro" %}
+### Pattern: VBA Macro -- Extract and Reverse
+The VBA source is already in the Decompiled Functions section as `__vba_source__`.
+Read the VBA macro, identify the flag transformation, and reverse it.
+```python
+import subprocess
+binary_path = "{{ binary_path }}"
+
+# Run olevba to extract VBA (already done -- source in __vba_source__ above)
+r = subprocess.run(['python3', '-m', 'oletools.olevba', '--decode', binary_path],
+                   capture_output=True, text=True, timeout=30)
+print(r.stdout[:3000])
+
+# After reading the VBA logic, implement the inverse here:
+# e.g. if VBA XORs each char with key and adds offset:
+encrypted = [0x41, 0x42, ...]  # from VBA
+key = 0x42  # from VBA
+flag = ''.join(chr(b ^ key) for b in encrypted)
+print(flag)
+```
+{% endif %}
+
+{% if challenge_type == "dotnet" %}
+### Pattern: .NET/CIL -- Decompile + Execute
+```python
+import subprocess, sys
+
+binary_path = "{{ binary_path }}"
+
+# Option A: get full C# source with ilspycmd
+result = subprocess.run(['ilspycmd', binary_path], capture_output=True, text=True, timeout=60)
+print("[C# source]", result.stdout[:3000])
+
+# Option B: CIL disassembly with monodis
+result = subprocess.run(['monodis', '--output=/dev/stdout', binary_path], capture_output=True, text=True, timeout=60)
+print("[CIL]", result.stdout[:3000])
+
+# Option C: run with input and observe behavior
+for test_input in [b"password\n", b"flag\n", b"admin\n"]:
+    r = subprocess.run(['mono', binary_path], input=test_input, capture_output=True, timeout=10)
+    print(f"Input {test_input!r}: exit={r.returncode}, out={r.stdout[:200]}, err={r.stderr[:100]}")
+```
+
+### Pattern: .NET/CIL -- Extract strings and reverse logic
+```python
+import subprocess, re
+
+binary_path = "{{ binary_path }}"
+
+# Parse CIL for string constants and comparison logic
+result = subprocess.run(['monodis', '--output=/dev/stdout', binary_path], capture_output=True, text=True, timeout=60)
+cil = result.stdout
+
+# Find string loads (ldstr instruction) and comparisons
+strings = re.findall(r'ldstr\s+"([^"]+)"', cil)
+print("CIL strings:", strings[:20])
+
+# Find expected values and call graph
+compares = re.findall(r'(call|callvirt)\s+\S+::(Compare|Equals|op_Equality)\b.*', cil)
+print("Comparison calls:", compares[:10])
+```
+{% endif %}
+
+## Rules
+- Script MUST be self-contained Python (all imports, all logic in one script)
+- Binary at: {{ binary_path }}
+{% if challenge_dir %}- Challenge files directory: {{ challenge_dir }} -- use absolute paths for ALL file reads{% endif %}
+{% if remote_info and remote_info.host and remote_info.port %}- Remote: {{ remote_info.host }}:{{ remote_info.port }} -- use pwntools remote()
+{% endif %}- MUST print the flag to stdout (format: {{ flag_format }})
+- NEVER hardcode flag values -- ALWAYS compute them algorithmically
+- Every constant MUST cite which decompiled function/string it came from
+- **ANTI-RED-HERRING**: Flag-shaped strings in the binary are often decoys. The real flag comes from REVERSING the algorithm. Verify candidates by running the binary.
+- If a previous attempt failed, **try a fundamentally DIFFERENT approach** -- don't repeat the same strategy with minor tweaks
+- If anti-debug is detected, patch it first
+- If custom sections with high entropy exist, extract and decrypt them
+- For byte-transform checks, prefer per-position forward brute-force on printable ASCII with `& 0xFF`
+- **ADAPT**: If the challenge has non-standard files (images, pcaps, archives, databases), use the appropriate Python library
+{% if failure_diagnosis and attempt_num > 1 %}- **CRITICAL**: Fix the failure diagnosis issues above -- do NOT repeat the same mistake
+{% endif %}{% if script_findings and attempt_num > 1 %}- **BUILD ON** the intermediate results from previous scripts -- don't start from scratch
+{% endif %}
+Write ONLY the Python script inside a ```python code block:

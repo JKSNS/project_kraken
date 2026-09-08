@@ -1,0 +1,108 @@
+# Kraken A/D -- Example Game Configuration
+#
+# Copy this file to game_config.yaml and customize for your competition.
+# Environment variables can be used with ${VAR} or ${VAR:-default} syntax.
+#
+# Usage:
+#   kraken-ad start --config game_config.yaml
+#   kraken-ad start --config game_config.yaml --dry-run  # test without submitting flags
+
+game:
+  # Seconds between game ticks (check with organizers)
+  tick_duration: 120
+
+  # Number of ticks before a flag expires (check with organizers)
+  flag_lifetime: 5
+
+  # Regex pattern for valid flags (DEF CON format shown)
+  flag_format: '[A-Z0-9]{31}='
+
+scoring:
+  # Scorebot API URL for flag submission
+  scorebot_url: "${SCOREBOT_URL:-http://10.0.0.1:8080/api/flag}"
+
+  # Authentication token for scorebot
+  scorebot_token: "${SCOREBOT_TOKEN:-}"
+
+  # Minimum seconds between flag submissions (avoid rate limiting)
+  submit_rate_limit: 0.1
+
+network:
+  # Your team's numeric ID
+  our_team_id: ${TEAM_ID:-1}
+
+  # Total number of teams in the competition
+  team_count: 20
+
+  # IP address template for reaching other teams' services
+  # {team_id} and {service_id} are substituted
+  ip_template: "10.{team_id}.{service_id}.2"
+
+  # Network interface connected to the game network
+  game_interface: "game"
+
+  # VPN interface (if using OpenVPN/WireGuard)
+  vpn_interface: "tun0"
+
+  # Map service names to numeric IDs for IP template
+  service_id_map:
+    vuln_service_1: 1
+    vuln_service_2: 2
+
+# Service definitions -- one entry per vulnerable service
+services:
+  - name: "vuln_service_1"
+    port: 1337
+    protocol: tcp
+    binary: "/opt/services/vuln1/vuln1"
+    # Optional: custom SLA check script
+    # check_script: "/opt/checks/check_vuln1.py"
+    timeout: 10.0
+
+  - name: "vuln_service_2"
+    port: 8080
+    protocol: http
+    binary: "/opt/services/vuln2/app.py"
+    timeout: 10.0
+
+# --- Directories ---
+
+# Directory containing exploit scripts
+# Structure: exploits/{service_name}/{exploit_name}.py
+exploit_dir: "./exploits"
+
+# Directory for service patches
+patch_dir: "./patches"
+
+# Directory for pcap captures
+pcap_dir: "./pcaps"
+
+# Directory for service backups (pre-patch)
+backup_dir: "./backups"
+
+# Directory for engine logs
+log_dir: "./logs"
+
+# --- Concurrency ---
+
+# Maximum simultaneous exploit executions
+max_concurrent_exploits: 50
+
+# Maximum simultaneous SLA checks
+max_concurrent_checks: 20
+
+# --- Feature Toggles ---
+
+# Automatically apply patches when attacks are detected
+# WARNING: Enable only after testing your patching pipeline
+auto_patch: false
+
+# Automatically add firewall rules for detected attacks
+# WARNING: May block legitimate traffic if false positives occur
+auto_firewall: false
+
+# Capture network traffic each tick
+capture_traffic: true
+
+# Actually submit flags to scorebot (disable for testing)
+submit_flags: true

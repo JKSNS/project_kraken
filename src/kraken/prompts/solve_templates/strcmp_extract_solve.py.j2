@@ -1,0 +1,33 @@
+#!/usr/bin/env python3
+"""strcmp/memcmp extraction via GDB -- auto-generated from template."""
+import os
+import re
+
+def main():
+    binary = "{{ binary_path }}"
+    test_input = "{{ test_input | default('AAAA') }}"
+    input_mode = "{{ input_mode | default('stdin') }}"
+    flag_prefix = "{{ flag_format_prefix | default('') }}"
+
+    # Use auto_gdb_cmp
+    cmd = f'python3 auto_gdb_cmp.py "{binary}" --input "{test_input}"'
+    print(f"[*] Running: {cmd}")
+    result = os.popen(cmd).read()
+    print(result)
+
+    # Try to extract comparison target
+    for pattern in [r'strcmp.*?["\']([^"\']+)["\']', r'memcmp.*?["\']([^"\']+)["\']',
+                    r'comparing.*?["\']([^"\']+)["\']', r'target.*?["\']([^"\']+)["\']']:
+        match = re.search(pattern, result, re.IGNORECASE)
+        if match:
+            print(f"FLAG: {match.group(1)}")
+            return
+
+    # Search for flag-like patterns
+    if flag_prefix:
+        match = re.search(re.escape(flag_prefix) + r'[^\s}]+\}?', result)
+        if match:
+            print(f"FLAG: {match.group(0)}")
+
+if __name__ == '__main__':
+    main()

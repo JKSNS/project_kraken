@@ -1,0 +1,99 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "kraken"
+version = "1.0.0"
+description = "Autonomous, cascade-first CTF auto-solver"
+authors = [{name = "Jackson Stephens"}]
+license = "CC-BY-NC-4.0"
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Security",
+]
+
+requires-python = ">=3.11"
+dependencies = [
+    "langgraph>=0.2.0",
+    "langchain-ollama>=0.3.0",
+    "langchain-community>=0.3.0",
+    "langchain>=0.3.0",
+    "docker>=7.0.0",
+    "structlog>=24.0.0",
+    "pydantic-settings>=2.0.0",
+    "jinja2>=3.1.0",
+    "pwntools>=4.12.0",
+    "z3-solver>=4.12.0",
+    "pycryptodome>=3.20.0",
+    "fastmcp>=2.0.0",
+    "pyelftools>=0.29",
+    "capstone>=5.0.0",
+    "lief>=0.14.0",
+    "pefile>=2023.2.7",
+    "pyyaml>=6.0",
+    "numpy>=1.24.0",
+    "Pillow>=10.0.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/JKSNS/project_kraken"
+Repository = "https://github.com/JKSNS/project_kraken"
+
+[project.optional-dependencies]
+ad = [
+    "aiohttp>=3.9.0",
+]
+dev = [
+    "pytest>=8.0",
+    "pytest-asyncio>=0.23",
+    "pytest-timeout>=2.2",
+]
+anthropic = [
+    "anthropic>=0.39.0",
+]
+openai = [
+    "openai>=1.0.0",
+]
+angr = [
+    "angr>=9.2.0",
+]
+qr = [
+    "pyzbar>=0.1.8",
+    "opencv-python-headless>=4.8.0",
+]
+gui = [
+    "fastapi>=0.110.0",
+    "uvicorn[standard]>=0.27.0",
+    "websockets>=12.0",
+]
+all = [
+    "kraken[dev,anthropic,openai,angr,qr,gui]",
+]
+
+[project.scripts]
+kraken = "kraken.orchestrator:main"
+kraken-init = "kraken.orchestrator:create_challenge"
+kraken-runtime = "kraken.runtime.cli:main"
+kraken-mcp = "kraken.mcp_server:main"
+kraken-gui = "kraken.gui.app:main"
+kraken-ad = "kraken.ad.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/kraken"]
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+
+[tool.ruff]
+target-version = "py311"
+line-length = 120
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "UP", "B", "SIM"]
+ignore = ["E501", "B008", "SIM108"]
+[tool.ruff.lint.isort]
+known-first-party = ["kraken"]

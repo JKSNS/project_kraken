@@ -1,0 +1,40 @@
+#!/usr/bin/env python3
+"""Angr symbolic execution solver -- auto-generated from template."""
+import os
+import re
+import sys
+
+def main():
+    binary = "{{ binary_path }}"
+    success = "{{ success_string }}"
+    length = {{ input_length | default(40) }}
+    use_arg = {{ 'True' if input_mode == 'arg' else 'False' }}
+    flag_prefix = "{{ flag_format_prefix | default('') }}"
+
+    # Run auto_angr with extracted parameters
+    cmd = f'python3 auto_angr.py "{binary}" --find "{success}" --length {length}'
+    if use_arg:
+        cmd += ' --arg'
+
+    print(f"[*] Running: {cmd}")
+    result = os.popen(cmd).read()
+    print(result)
+
+    # Extract flag from output
+    if flag_prefix:
+        match = re.search(re.escape(flag_prefix) + r'[^\s}]+\}?', result)
+        if match:
+            print(f"FLAG: {match.group(0)}")
+            return
+
+    # Try generic flag pattern
+    for pattern in [r'flag\{[^}]+\}', r'[A-Za-z]+\{[^}]+\}', r'[^\s]{10,}']:
+        match = re.search(pattern, result)
+        if match:
+            print(f"CANDIDATE: {match.group(0)}")
+            return
+
+    print("[-] No flag found in angr output")
+
+if __name__ == '__main__':
+    main()

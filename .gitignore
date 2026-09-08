@@ -1,0 +1,37 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# KRAKEN runtime state / solve artifacts (never commit captured flags or run logs)
+*.session.json
+session.json
+challenges/
+# ctfs/: local challenge workspaces (scratch); never committed.
+# Curated showcase solves live in examples/ and are tracked normally.
+ctfs/
+solves/
+results/
+*_solution_artifacts/
+artifacts/
+*.log
+.kraken/
+
+# benchmark datasets are fetched from upstream, not vendored
+benchmarks/*/dataset/
+benchmarks/*/historical_results/
+
+# local env
+.env
+*.local
+
+# transient tectonic build output; the versioned PDF is what ships
+paper/kraken_whitepaper.pdf
